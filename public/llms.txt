@@ -1,0 +1,15 @@
+# GeoPersona Analytics Context
+# Format: llms.txt v1.0
+
+> GeoPersona Analytics is an enterprise demographic synthesis engine modeling macroeconomic workforce sectors, household structures, telecom ISP infrastructure, and data plausibility heuristics.
+
+## Public Core Routes
+- https://geopersona.example.com/ : Main Analytics Engine, parameter controls, regional workforce models.
+- https://geopersona.example.com/privacy : Privacy policy and telemetry handling.
+- https://geopersona.example.com/terms : Terms of service and synthetic validation boundaries.
+
+## Key Capabilities
+- Regional Labor Mapping: Synthesizes top 3 localized economic industries and resident occupations.
+- Biological & Chronological Constraints: Validates age-conditioned parent-child spacing and academic timelines.
+- ISP Telemetry: Resolves Autonomous System Numbers (ASN) to dominant regional access networks.
+- Cryptographic Steganography: Verifies origin watermarks signed with HMAC-SHA256.
