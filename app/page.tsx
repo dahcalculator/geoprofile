@@ -179,46 +179,47 @@ export default function HomePage() {
   };
 
   const handleDownloadPdf = async () => {
-    setExportingPdf(true);
-    try {
-      // Dynamic import to prevent SSR 'window is not defined' execution crashes
-      // @ts-ignore
-      const html2pdf = (await import('html2pdf.js')).default;
-      const reportElement = document.getElementById('profile-report-area');
-      if (!reportElement) return;
+  setExportingPdf(true);
+  try {
+    // Dynamic import to prevent SSR 'window is not defined' execution crashes
+    const html2pdfModule = await import('html2pdf.js');
+    const html2pdf = html2pdfModule.default;
 
-      const clone = reportElement.cloneNode(true) as HTMLElement;
-      const tokenUid = `GP-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-      const timestamp = new Date().toISOString();
-      const payloadString = `UID:${tokenUid}|IP:${profile.geo.ip}|LOC:${profile.geo.city},${profile.geo.country_name}|TS:${timestamp}`;
+    const reportElement = document.getElementById('profile-report-area');
+    if (!reportElement) return;
 
-      const res = await fetch('/api/sign-watermark', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payload: payloadString }),
-      });
-      const { signature } = await res.json();
+    const clone = reportElement.cloneNode(true) as HTMLElement;
+    const tokenUid = `GP-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const timestamp = new Date().toISOString();
+    const payloadString = `UID:${tokenUid}|IP:${profile.geo.ip}|LOC:${profile.geo.city},${profile.geo.country_name}|TS:${timestamp}`;
 
-      const microprintDiv = document.createElement('div');
-      microprintDiv.style.cssText = 'font-size: 1pt; opacity: 0.01; color: #020617; margin-top: 10px; font-family: monospace;';
-      microprintDiv.innerText = `SIG:agogo::HMAC:${signature}::UID:${tokenUid}::IP:${profile.geo.ip}::TS:${timestamp}`;
-      clone.appendChild(microprintDiv);
+    const res = await fetch('/api/sign-watermark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payload: payloadString }),
+    });
+    const { signature } = await res.json();
 
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: `GeoPersona_Report_${profile.geo.city}_${profile.geo.ip}_Age${profile.age}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#020617' },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      };
+    const microprintDiv = document.createElement('div');
+    microprintDiv.style.cssText = 'font-size: 1pt; opacity: 0.01; color: #020617; margin-top: 10px; font-family: monospace;';
+    microprintDiv.innerText = `SIG:agogo::HMAC:${signature}::UID:${tokenUid}::IP:${profile.geo.ip}::TS:${timestamp}`;
+    clone.appendChild(microprintDiv);
 
-      await html2pdf().set(opt).from(clone).save();
-    } catch {
-      window.print();
-    } finally {
-      setExportingPdf(false);
-    }
-  };
+   const opt = {
+  margin: 10,
+  filename: `GeoPersona_Report_${profile.geo.city}_${profile.geo.ip}_Age${profile.age}.pdf`,
+  image: { type: 'jpeg' as const, quality: 0.98 },
+  html2canvas: { scale: 2, useCORS: true, backgroundColor: '#020617' },
+  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+};
+
+await html2pdf().set(opt as any).from(clone).save();
+  } catch {
+    window.print();
+  } finally {
+    setExportingPdf(false);
+  }
+};
 
   return (
     <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
