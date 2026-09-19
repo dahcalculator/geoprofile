@@ -178,10 +178,10 @@ export default function HomePage() {
     }
   };
 
-  const handleDownloadPdf = async () => {
+ const handleDownloadPdf = async () => {
   setExportingPdf(true);
   try {
-    // Dynamic import to prevent SSR 'window is not defined' execution crashes
+    // Dynamic import to prevent SSR 'window is not defined' crashes
     const html2pdfModule = await import('html2pdf.js');
     const html2pdf = html2pdfModule.default;
 
@@ -205,16 +205,17 @@ export default function HomePage() {
     microprintDiv.innerText = `SIG:agogo::HMAC:${signature}::UID:${tokenUid}::IP:${profile.geo.ip}::TS:${timestamp}`;
     clone.appendChild(microprintDiv);
 
-   const opt = {
-  margin: 10,
-  filename: `GeoPersona_Report_${profile.geo.city}_${profile.geo.ip}_Age${profile.age}.pdf`,
-  image: { type: 'jpeg' as const, quality: 0.98 },
-  html2canvas: { scale: 2, useCORS: true, backgroundColor: '#020617' },
-  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-};
+    const opt = {
+      margin: 10,
+      filename: `GeoPersona_Report_${profile.geo.city}_${profile.geo.ip}_Age${profile.age}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#020617' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
 
-await html2pdf().set(opt as any).from(clone).save();
-  } catch {
+    await html2pdf().set(opt as any).from(clone).save();
+  } catch (err) {
+    console.error('PDF generation error:', err);
     window.print();
   } finally {
     setExportingPdf(false);
