@@ -1,13 +1,18 @@
 export interface ChildProfile {
+  order: number;
   age: number;
-  stage: 'Infant' | 'Toddler' | 'School-Age' | 'Teenager' | 'Young Adult';
-  residing: boolean;
+  birthYear: number;
+  stage: string;
+  dependent: boolean;
+  color: string;
 }
 
 export interface IndustryProfile {
-  title: string;
+  rank: number;
+  name: string;
   share: string;
   driver: string;
+  growth: string;
   anchor: string;
 }
 
@@ -15,60 +20,122 @@ export interface OccupationProfile {
   title: string;
   sector: string;
   share: string;
-  responsibilities: string;
+  tools: string;
+}
+
+export interface IspEntry {
+  name: string;
+  share: string;
+  tech: string;
+  tier: string;
+  note: string;
+}
+
+export interface BroadcastStation {
+  name: string;
+  type?: string;
+  genre?: string;
 }
 
 export interface DemographicProfile {
-  ip: string;
-  city: string;
-  country: string;
-  countryCode: string;
-  isp: string;
-  asn: string;
+  geo: {
+    ip: string;
+    city: string;
+    region: string;
+    country_name: string;
+    country_code: string;
+    timezone: string;
+    asn: string;
+    latitude: number;
+    longitude: number;
+  };
   age: number;
+  archetypeLabel: string;
+  narrative: string;
+  detectedIsp: string;
+  detectedAsn: string;
+  currencySymbol: string;
+  currencyCode: string;
+  grossIncome: number;
+  netIncome: number;
+  totalTax: number;
+  effectiveTaxRatePercentage: number;
+  careerStage: string;
+  majorIndustries: IndustryProfile[];
+  topOccupations: OccupationProfile[];
   education: {
-    degree: string;
-    field: string;
+    degreeTitle: string;
+    badge: string;
+    fieldOfStudy: string;
     institution: string;
-    gradYear: number;
+    gradDisplay: string;
+    cohortShare: string;
+    cohortPercent: number;
+    description: string;
   };
-  industries: IndustryProfile[];
-  occupations: OccupationProfile[];
-  household: {
-    marital: string;
-    size: number;
-    childrenCount: number;
+  childProfile: {
+    count: number;
+    livingAtHome: number;
     children: ChildProfile[];
-    tenure: string;
+    stageDescription: string;
+    note: string;
   };
-  finance: {
-    gross: string;
-    net: string;
-    effectiveTax: number;
+  householdSize: string;
+  maritalStatus: string;
+  homeOwnership: string;
+  householdArchetype: string;
+  cars: {
+    category: string;
+    models: string;
+    evRate: string;
+    commute: string;
+    commuteTime: string;
+    hasCar: boolean;
   };
-  mobility: {
-    carClass: string;
-    model: string;
-    evShare: string;
+  sports: string[];
+  spectatorSport: string;
+  fitnessRate: string;
+  store: string;
+  storeType: string;
+  bank: string;
+  bankType: string;
+  insurance: {
+    health: string;
+    profLiability: string;
+    autoProperty: string;
   };
-  telecom: {
+  ispProfile: {
     connType: string;
-    topIsps: Array<{ name: string; share: string; tech: string }>;
+    avgSpeed: string;
+    latencyTier: string;
+    householdCoverage: string;
+    topIsps: IspEntry[];
   };
-  media: {
-    svod: string[];
-    audio: string[];
-    tv: string[];
-    radio: string[];
+  entertainment: {
+    dietTag: string;
+    subCount: string;
+    videoApps: string[];
+    audioApps: string[];
+    tvStations: BroadcastStation[];
+    radioStations: BroadcastStation[];
   };
+}
+
+export interface PlausibilityAuditItem {
+  pass: boolean;
+  label: string;
+  text: string;
 }
 
 export interface PlausibilityResult {
   score: number;
-  rating: string;
-  anomalies: string[];
-  bioPass: boolean;
-  academicPass: boolean;
-  economicPass: boolean;
-  housingPass: boolean;
+  status: string;
+  mahalanobisDistance: string;
+  audits: {
+    bioSpacing: PlausibilityAuditItem;
+    academicTimeline: PlausibilityAuditItem;
+    econConcordance: PlausibilityAuditItem;
+    householdAlign: PlausibilityAuditItem;
+    policyAsset: PlausibilityAuditItem;
+  };
 }
