@@ -178,67 +178,65 @@ export default function HomePage() {
     }
   };
 
- const handleDownloadPdf = async () => {
-  setExportingPdf(true);
-  try {
-    // Dynamic import to prevent SSR 'window is not defined' crashes
-    const html2pdfModule = await import('html2pdf.js');
-    const html2pdf = html2pdfModule.default;
+  const handleDownloadPdf = async () => {
+    setExportingPdf(true);
+    try {
+      const html2pdfModule = await import('html2pdf.js');
+      const html2pdf = html2pdfModule.default;
 
-    const reportElement = document.getElementById('profile-report-area');
-    if (!reportElement) return;
+      const reportElement = document.getElementById('profile-report-area');
+      if (!reportElement) return;
 
-    const clone = reportElement.cloneNode(true) as HTMLElement;
-    const tokenUid = `GP-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const timestamp = new Date().toISOString();
-    const payloadString = `UID:${tokenUid}|IP:${profile.geo.ip}|LOC:${profile.geo.city},${profile.geo.country_name}|TS:${timestamp}`;
+      const clone = reportElement.cloneNode(true) as HTMLElement;
+      const tokenUid = `GP-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+      const timestamp = new Date().toISOString();
+      const payloadString = `UID:${tokenUid}|IP:${profile.geo.ip}|LOC:${profile.geo.city},${profile.geo.country_name}|TS:${timestamp}`;
 
-    const res = await fetch('/api/sign-watermark', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payload: payloadString }),
-    });
-    const { signature } = await res.json();
+      const res = await fetch('/api/sign-watermark', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload: payloadString }),
+      });
+      const { signature } = await res.json();
 
-    const microprintDiv = document.createElement('div');
-    microprintDiv.style.cssText = 'font-size: 1pt; opacity: 0.01; color: #020617; margin-top: 10px; font-family: monospace;';
-    microprintDiv.innerText = `SIG:agogo::HMAC:${signature}::UID:${tokenUid}::IP:${profile.geo.ip}::TS:${timestamp}`;
-    clone.appendChild(microprintDiv);
+      const microprintDiv = document.createElement('div');
+      microprintDiv.style.cssText = 'font-size: 1pt; opacity: 0.01; color: #020617; margin-top: 10px; font-family: monospace;';
+      microprintDiv.innerText = `SIG:agogo::HMAC:${signature}::UID:${tokenUid}::IP:${profile.geo.ip}::TS:${timestamp}`;
+      clone.appendChild(microprintDiv);
 
-    const opt = {
-      margin: 10,
-      filename: `GeoPersona_Report_${profile.geo.city}_${profile.geo.ip}_Age${profile.age}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#020617' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    };
+      const opt = {
+        margin: 10,
+        filename: `GeoPersona_Report_${profile.geo.city}_${profile.geo.ip}_Age${profile.age}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      };
 
-    await html2pdf().set(opt as any).from(clone).save();
-  } catch (err) {
-    console.error('PDF generation error:', err);
-    window.print();
-  } finally {
-    setExportingPdf(false);
-  }
-};
+      await html2pdf().set(opt as any).from(clone).save();
+    } catch {
+      window.print();
+    } finally {
+      setExportingPdf(false);
+    }
+  };
 
   return (
-    <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-      {/* Public Header with Covert Brand Trigger */}
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900 border border-slate-800 p-4 rounded-2xl gap-4">
+    <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 bg-white min-h-screen text-slate-800 antialiased">
+      {/* Public Header */}
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 border border-slate-200 p-4 rounded-2xl gap-4 shadow-sm">
         <div className="flex items-center space-x-3 select-none">
           <div
             onClick={() => router.push('/covert-audit?key=agogo')}
-            className="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center font-bold font-mono text-white shadow-lg shadow-indigo-600/30 cursor-pointer transition"
+            className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center font-bold font-mono text-white shadow-sm cursor-pointer transition"
             title="System Gateway"
           >
             GP
           </div>
           <div>
-            <h1 className="font-bold tracking-wide text-white text-base sm:text-lg">
+            <h1 className="font-bold tracking-wide text-slate-900 text-base sm:text-lg">
               GeoPersona Analytics
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Macroeconomic Workforce & Network Telemetry Engine
             </p>
           </div>
@@ -253,28 +251,28 @@ export default function HomePage() {
               setIp(random.ip);
               fetchGeolocation(random.ip);
             }}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition focus:outline-none"
+            className="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold px-3 py-2 rounded-xl transition focus:outline-none shadow-sm"
           >
             Shuffle
           </button>
           <button
             onClick={handleExportJson}
             disabled={exportingJson}
-            className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition focus:outline-none"
+            className="bg-white hover:bg-slate-100 text-emerald-700 border border-slate-200 text-xs font-semibold px-3 py-2 rounded-xl transition focus:outline-none shadow-sm"
           >
             {exportingJson ? 'Exporting...' : 'Export JSON'}
           </button>
           <button
             onClick={handleDownloadPdf}
             disabled={exportingPdf}
-            className="bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition focus:outline-none shadow-lg shadow-rose-600/30"
+            className="bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition focus:outline-none shadow-sm"
           >
             {exportingPdf ? 'Rendering PDF...' : 'Download PDF'}
           </button>
           <button
             onClick={handleCopyMarkdown}
             disabled={copyingSummary}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition focus:outline-none"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition focus:outline-none shadow-sm"
           >
             {copyingSummary ? 'Signing...' : 'Copy Signed MD'}
           </button>
@@ -282,14 +280,14 @@ export default function HomePage() {
       </header>
 
       {/* Target Conditioning Inputs */}
-      <section className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-lg space-y-4">
+      <section className="bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label htmlFor="age-range" className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+              <label htmlFor="age-range" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
                 Respondent Age:
               </label>
-              <span className="text-sm font-bold font-mono text-indigo-300 bg-indigo-950/80 border border-indigo-700/50 px-2.5 py-0.5 rounded-full">
+              <span className="text-sm font-bold font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
                 {age} Years Old
               </span>
             </div>
@@ -300,17 +298,17 @@ export default function HomePage() {
               max="85"
               value={age}
               onChange={(e) => setAge(Number(e.target.value))}
-              className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
             />
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label htmlFor="ip-input" className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+              <label htmlFor="ip-input" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
                 Target IP Address:
               </label>
               {loading && (
-                <span className="text-xs text-indigo-400 font-mono animate-pulse">
+                <span className="text-xs text-emerald-600 font-mono animate-pulse">
                   Resolving Telemetry...
                 </span>
               )}
@@ -323,18 +321,18 @@ export default function HomePage() {
                 value={ip}
                 onChange={(e) => setIp(e.target.value)}
                 placeholder="e.g. 102.89.23.11"
-                className="w-full bg-slate-950 border border-slate-700 text-slate-100 text-sm font-mono pl-3.5 pr-48 py-2 rounded-xl focus:border-indigo-500 focus:outline-none"
+                className="w-full bg-white border border-slate-300 text-slate-900 text-sm font-mono pl-3.5 pr-48 py-2 rounded-xl focus:border-emerald-600 focus:outline-none shadow-sm"
               />
               <div className="absolute right-2 flex items-center gap-1.5">
                 {detectedProtocol && (
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/30">
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                     {detectedProtocol}
                   </span>
                 )}
                 <button
                   type="button"
                   onClick={() => fetchGeolocation()}
-                  className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-slate-700 font-mono"
+                  className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-lg border border-slate-200 font-mono"
                 >
                   Auto
                 </button>
@@ -345,7 +343,7 @@ export default function HomePage() {
                     setCopiedIp(true);
                     setTimeout(() => setCopiedIp(false), 2000);
                   }}
-                  className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-slate-700 font-mono"
+                  className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-lg border border-slate-200 font-mono"
                 >
                   {copiedIp ? '✓' : 'Copy'}
                 </button>
@@ -355,8 +353,8 @@ export default function HomePage() {
         </div>
 
         {/* Quick Sample Presets */}
-        <div className="pt-2 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-slate-400 font-mono">Presets:</span>
+        <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-slate-500 font-mono">Presets:</span>
           {SAMPLE_PRESETS.map((p, idx) => (
             <button
               key={idx}
@@ -365,7 +363,7 @@ export default function HomePage() {
                 setIp(p.ip);
                 fetchGeolocation(p.ip);
               }}
-              className="bg-slate-950 hover:bg-indigo-950 hover:text-indigo-300 text-slate-400 border border-slate-800 px-2.5 py-1 rounded-lg transition text-[11px]"
+              className="bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-lg transition text-[11px] shadow-sm"
             >
               {p.label}
             </button>
@@ -376,17 +374,17 @@ export default function HomePage() {
       {/* Profile Output Container for Rendering & PDF Export */}
       <div id="profile-report-area" className="space-y-6">
         {/* 5-Check Demographic Plausibility Engine Matrix */}
-        <section className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-          <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+        <section className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4 shadow-sm">
+          <div className="flex justify-between items-center border-b border-slate-200 pb-3">
             <div>
-              <h2 className="text-sm font-bold uppercase text-white font-mono">
+              <h2 className="text-sm font-bold uppercase text-slate-900 font-mono">
                 Demographic Plausibility Engine
               </h2>
-              <p className="text-xs text-slate-400">
-                Mahalanobis Distance: <span className="font-mono text-emerald-400 font-bold">{audit.mahalanobisDistance} σ</span>
+              <p className="text-xs text-slate-500">
+                Mahalanobis Distance: <span className="font-mono text-emerald-700 font-bold">{audit.mahalanobisDistance} σ</span>
               </p>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 border border-emerald-800 px-3 py-1 rounded-full">
+            <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
               {audit.score}% • {audit.status}
             </span>
           </div>
@@ -395,49 +393,49 @@ export default function HomePage() {
             {Object.entries(audit.audits).map(([key, item]) => (
               <div
                 key={key}
-                className={`p-3 bg-slate-950 rounded-xl border ${
-                  item.pass ? 'border-emerald-900/40' : 'border-rose-900/60'
+                className={`p-3 bg-white rounded-xl border shadow-sm ${
+                  item.pass ? 'border-emerald-200' : 'border-rose-300'
                 }`}
               >
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-bold text-slate-300 capitalize">
+                  <span className="font-bold text-slate-800 capitalize">
                     {key.replace(/([A-Z])/g, ' $1')}
                   </span>
                   <span
                     className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                       item.pass
-                        ? 'bg-emerald-950 text-emerald-400'
-                        : 'bg-rose-950 text-rose-400'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-rose-50 text-rose-700'
                     }`}
                   >
                     {item.label}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-tight">{item.text}</p>
+                <p className="text-[11px] text-slate-600 leading-tight">{item.text}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* 3 Major Regional Industries & Top 3 Specific Resident Occupations */}
-        <section className="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 rounded-2xl p-6 border border-indigo-500/40 space-y-6">
+        <section className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-6 shadow-sm">
           <div>
-            <h2 className="text-xs font-mono uppercase text-indigo-400 tracking-wider font-semibold mb-3">
+            <h2 className="text-xs font-mono uppercase text-emerald-700 tracking-wider font-bold mb-3">
               3 Major Regional Industries ({geo.city}, {geo.country})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {profile.majorIndustries.map((ind, i) => (
-                <div key={i} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
+                <div key={i} className="bg-white border border-slate-200 p-4 rounded-xl space-y-2 shadow-sm">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs font-mono text-indigo-400 font-semibold">
+                    <span className="text-xs font-mono text-emerald-700 font-bold">
                       Rank #{ind.rank}
                     </span>
-                    <span className="text-xs bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded font-mono">
+                    <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-mono font-semibold">
                       {ind.share}
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-white">{ind.name}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">{ind.driver}</p>
+                  <h3 className="text-sm font-bold text-slate-900">{ind.name}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">{ind.driver}</p>
                   <p className="text-[10px] text-slate-500 font-mono">
                     Growth: {ind.growth} • Anchor: {ind.anchor}
                   </p>
@@ -446,23 +444,23 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-800">
-            <h2 className="text-xs font-mono uppercase text-emerald-400 tracking-wider font-semibold mb-3">
+          <div className="pt-4 border-t border-slate-200">
+            <h2 className="text-xs font-mono uppercase text-emerald-700 tracking-wider font-bold mb-3">
               Top 3 Specific Resident Occupations ({profile.careerStage})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {profile.topOccupations.map((occ, i) => (
-                <div key={i} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
+                <div key={i} className="bg-white border border-slate-200 p-4 rounded-xl space-y-2 shadow-sm">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs font-mono text-emerald-400 font-semibold">
+                    <span className="text-xs font-mono text-emerald-700 font-semibold">
                       {occ.sector}
                     </span>
-                    <span className="text-xs bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded font-mono">
+                    <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-mono font-semibold">
                       {occ.share}
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-white">{occ.title}</h3>
-                  <p className="text-xs text-slate-400 font-mono">{occ.tools}</p>
+                  <h3 className="text-sm font-bold text-slate-900">{occ.title}</h3>
+                  <p className="text-xs text-slate-600 font-mono">{occ.tools}</p>
                 </div>
               ))}
             </div>
@@ -472,225 +470,225 @@ export default function HomePage() {
         {/* Complete 9-Card Demographic Attribute Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Card 1: Educational Attainment */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-indigo-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-emerald-700 font-mono">
                 1. Education & Licensure
               </h3>
-              <span className="text-[10px] bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-mono font-semibold">
                 {profile.education.badge}
               </span>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-              <div className="text-sm font-bold text-white">{profile.education.degreeTitle}</div>
-              <div className="text-xs text-indigo-300">{profile.education.fieldOfStudy}</div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="text-sm font-bold text-slate-900">{profile.education.degreeTitle}</div>
+              <div className="text-xs text-emerald-700 font-medium">{profile.education.fieldOfStudy}</div>
             </div>
-            <div className="text-xs text-slate-400 space-y-1">
-              <p>Institution: <span className="text-white font-semibold">{profile.education.institution}</span></p>
-              <p>Graduation: <span className="text-emerald-400 font-mono font-bold">{profile.education.gradDisplay}</span></p>
+            <div className="text-xs text-slate-600 space-y-1">
+              <p>Institution: <span className="text-slate-900 font-semibold">{profile.education.institution}</span></p>
+              <p>Graduation: <span className="text-emerald-700 font-mono font-bold">{profile.education.gradDisplay}</span></p>
               <p>{profile.education.description}</p>
             </div>
           </div>
 
           {/* Card 2: Household & Children */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-amber-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-amber-700 font-mono">
                 2. Household & Children
               </h3>
-              <span className="text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-mono font-semibold">
                 {profile.childProfile.stageDescription}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-center">
-              <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-xs text-slate-400">Total Children</span>
-                <div className="text-xl font-bold text-white">{profile.childProfile.count}</div>
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-medium">Total Children</span>
+                <div className="text-xl font-bold text-slate-900">{profile.childProfile.count}</div>
               </div>
-              <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-xs text-slate-400">Household Size</span>
-                <div className="text-xl font-bold text-white">{profile.householdSize}</div>
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-medium">Household Size</span>
+                <div className="text-xl font-bold text-slate-900">{profile.householdSize}</div>
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {profile.childProfile.children.map((c, i) => (
-                <span key={i} className={`text-xs px-2.5 py-1 rounded-lg border font-mono ${c.color}`}>
+                <span key={i} className="text-xs px-2.5 py-1 rounded-lg border font-mono bg-emerald-50 text-emerald-800 border-emerald-200 font-medium">
                   #{c.order}: Age {c.age} ({c.stage})
                 </span>
               ))}
               {profile.childProfile.children.length === 0 && (
-                <span className="text-xs text-slate-500 italic">No dependent children modeled.</span>
+                <span className="text-xs text-slate-400 italic">No dependent children modeled.</span>
               )}
             </div>
-            <p className="text-[11px] text-slate-400">{profile.childProfile.note}</p>
+            <p className="text-[11px] text-slate-500">{profile.childProfile.note}</p>
           </div>
 
           {/* Card 3: Income & Taxes */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-emerald-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-emerald-700 font-mono">
                 3. Income & Taxes
               </h3>
-              <span className="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-mono font-semibold">
                 {profile.currencyCode}
               </span>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-              <span className="text-xs text-slate-400">Gross Pre-Tax:</span>
-              <span className="text-base font-black text-white">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+              <span className="text-xs text-slate-600">Gross Pre-Tax:</span>
+              <span className="text-base font-black text-slate-900">
                 {profile.currencySymbol}{profile.grossIncome.toLocaleString()}
               </span>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl border border-emerald-500/30 flex justify-between items-center">
-              <span className="text-xs text-emerald-400">Net Take-Home:</span>
-              <span className="text-base font-black text-emerald-300">
+            <div className="bg-emerald-50/50 p-3 rounded-xl border border-emerald-200 flex justify-between items-center">
+              <span className="text-xs text-emerald-800 font-semibold">Net Take-Home:</span>
+              <span className="text-base font-black text-emerald-700">
                 {profile.currencySymbol}{profile.netIncome.toLocaleString()}
               </span>
             </div>
-            <div className="text-[11px] text-slate-400 flex justify-between">
+            <div className="text-[11px] text-slate-600 flex justify-between">
               <span>Effective Tax: {profile.effectiveTaxRatePercentage}%</span>
               <span>Est. Tax: -{profile.currencySymbol}{profile.totalTax.toLocaleString()}</span>
             </div>
           </div>
 
           {/* Card 4: Vehicle & Mobility */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-cyan-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-teal-700 font-mono">
                 4. Vehicle & Mobility
               </h3>
-              <span className="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded font-mono font-semibold">
                 Mobility
               </span>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-              <div className="text-xs text-slate-400">Primary Vehicle Class</div>
-              <div className="text-sm font-bold text-white">{profile.cars.category}</div>
-              <div className="text-xs text-indigo-300 mt-1">{profile.cars.models}</div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="text-xs text-slate-500 font-medium">Primary Vehicle Class</div>
+              <div className="text-sm font-bold text-slate-900">{profile.cars.category}</div>
+              <div className="text-xs text-emerald-700 mt-1">{profile.cars.models}</div>
             </div>
-            <div className="text-xs text-slate-400 space-y-1">
-              <p>Commute: <span className="text-white font-medium">{profile.cars.commute} ({profile.cars.commuteTime})</span></p>
-              <p className="text-emerald-400 font-medium">{profile.cars.evRate}</p>
+            <div className="text-xs text-slate-600 space-y-1">
+              <p>Commute: <span className="text-slate-900 font-medium">{profile.cars.commute} ({profile.cars.commuteTime})</span></p>
+              <p className="text-emerald-700 font-medium">{profile.cars.evRate}</p>
             </div>
           </div>
 
           {/* Card 5: Sports & Athletics */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-orange-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-orange-700 font-mono">
                 5. Sports & Recreation
               </h3>
-              <span className="text-[10px] bg-orange-950 text-orange-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-orange-50 text-orange-800 border border-orange-200 px-2 py-0.5 rounded font-mono font-semibold">
                 Athletics
               </span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {profile.sports.map((s, idx) => (
-                <span key={idx} className="bg-slate-950 border border-orange-500/30 text-orange-300 text-xs px-2.5 py-1 rounded-lg">
+                <span key={idx} className="bg-orange-50 border border-orange-200 text-orange-800 text-xs px-2.5 py-1 rounded-lg font-medium">
                   {s}
                 </span>
               ))}
             </div>
-            <div className="text-xs text-slate-400 space-y-1 pt-1">
-              <p>Spectator: <span className="text-white font-medium">{profile.spectatorSport}</span></p>
-              <p>Fitness Cadence: <span className="text-emerald-400 font-medium">{profile.fitnessRate}</span></p>
+            <div className="text-xs text-slate-600 space-y-1 pt-1">
+              <p>Spectator: <span className="text-slate-900 font-medium">{profile.spectatorSport}</span></p>
+              <p>Fitness Cadence: <span className="text-emerald-700 font-medium">{profile.fitnessRate}</span></p>
             </div>
           </div>
 
           {/* Card 6: Stores & Primary Bank */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-teal-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-teal-700 font-mono">
                 6. Stores & Banking
               </h3>
-              <span className="text-[10px] bg-teal-950 text-teal-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded font-mono font-semibold">
                 Commerce
               </span>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-              <div className="text-xs font-semibold text-teal-400">Most Popular Store</div>
-              <div className="text-sm font-bold text-white">{profile.store}</div>
-              <div className="text-[11px] text-slate-400">{profile.storeType}</div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="text-xs font-semibold text-emerald-700">Most Popular Store</div>
+              <div className="text-sm font-bold text-slate-900">{profile.store}</div>
+              <div className="text-[11px] text-slate-500">{profile.storeType}</div>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-              <div className="text-xs font-semibold text-indigo-400">Primary Bank</div>
-              <div className="text-sm font-bold text-white">{profile.bank}</div>
-              <div className="text-[11px] text-slate-400">{profile.bankType}</div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="text-xs font-semibold text-teal-700">Primary Bank</div>
+              <div className="text-sm font-bold text-slate-900">{profile.bank}</div>
+              <div className="text-[11px] text-slate-500">{profile.bankType}</div>
             </div>
           </div>
 
           {/* Card 7: Insurance Coverage */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-pink-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-pink-700 font-mono">
                 7. Insurance Coverage
               </h3>
-              <span className="text-[10px] bg-pink-950 text-pink-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-pink-50 text-pink-700 border border-pink-200 px-2 py-0.5 rounded font-mono font-semibold">
                 Risk Policies
               </span>
             </div>
-            <div className="text-xs text-slate-300 space-y-2">
-              <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                <span className="text-pink-400 font-semibold block">Health:</span>
+            <div className="text-xs text-slate-700 space-y-2">
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span className="text-pink-700 font-semibold block">Health:</span>
                 <span>{profile.insurance.health}</span>
               </div>
-              <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                <span className="text-amber-400 font-semibold block">Liability:</span>
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span className="text-amber-700 font-semibold block">Liability:</span>
                 <span>{profile.insurance.profLiability}</span>
               </div>
-              <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                <span className="text-cyan-400 font-semibold block">Auto / Asset:</span>
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span className="text-teal-700 font-semibold block">Auto / Asset:</span>
                 <span>{profile.insurance.autoProperty}</span>
               </div>
             </div>
           </div>
 
           {/* Card 8: Entertainment & Media Diet (Spans 2 columns) */}
-          <div className="bg-slate-900 border border-rose-500/40 p-5 rounded-2xl space-y-4 md:col-span-2">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-rose-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-4 md:col-span-2 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-rose-700 font-mono">
                 8. Entertainment, Media Apps & Stations
               </h3>
-              <span className="text-[10px] bg-rose-950 text-rose-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded font-mono font-semibold">
                 {profile.entertainment.dietTag}
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-                <div className="font-bold text-rose-300 flex justify-between">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div className="font-bold text-rose-800 flex justify-between">
                   <span>SVOD Streaming</span>
-                  <span className="text-[10px] text-slate-400">{profile.entertainment.subCount}</span>
+                  <span className="text-[10px] text-slate-500">{profile.entertainment.subCount}</span>
                 </div>
                 <div className="space-y-1">
                   {profile.entertainment.videoApps.map((v, idx) => (
-                    <div key={idx} className="p-1.5 bg-slate-900 rounded border border-slate-800/80 text-slate-200">
+                    <div key={idx} className="p-1.5 bg-white rounded border border-slate-200 text-slate-800">
                       {v}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-                <div className="font-bold text-emerald-300">Music & Audio</div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div className="font-bold text-emerald-800">Music & Audio</div>
                 <div className="space-y-1">
                   {profile.entertainment.audioApps.map((a, idx) => (
-                    <div key={idx} className="p-1.5 bg-slate-900 rounded border border-slate-800/80 text-slate-200">
+                    <div key={idx} className="p-1.5 bg-white rounded border border-slate-200 text-slate-800">
                       {a}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-                <div className="font-bold text-cyan-300">TV & Radio Broadcast</div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div className="font-bold text-teal-800">TV & Radio Broadcast</div>
                 <div className="space-y-1">
                   {profile.entertainment.tvStations.slice(0, 2).map((tv, idx) => (
-                    <div key={idx} className="p-1 bg-slate-900 rounded text-slate-300 text-[11px] truncate">
+                    <div key={idx} className="p-1 bg-white rounded border border-slate-200 text-slate-800 text-[11px] truncate">
                       {tv.name}
                     </div>
                   ))}
                   {profile.entertainment.radioStations.slice(0, 2).map((rad, idx) => (
-                    <div key={idx} className="p-1 bg-slate-900 rounded text-cyan-400 text-[11px] truncate">
+                    <div key={idx} className="p-1 bg-white rounded border border-slate-200 text-teal-700 text-[11px] truncate font-medium">
                       {rad.name}
                     </div>
                   ))}
@@ -700,42 +698,42 @@ export default function HomePage() {
           </div>
 
           {/* Card 9: ISP & Telecom Infrastructure (Full Width) */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 lg:col-span-3">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-bold uppercase text-cyan-400 font-mono">
+          <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-4 lg:col-span-3 shadow-sm">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="text-xs font-bold uppercase text-emerald-700 font-mono">
                 9. ISP & Broadband Telemetry Profile
               </h3>
-              <span className="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-mono font-semibold">
                 Broadband Index
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                <span className="text-[11px] text-slate-400 uppercase">Active Provider</span>
-                <div className="text-sm font-bold text-white mt-0.5">{profile.detectedIsp}</div>
-                <div className="text-[11px] text-cyan-400">{profile.detectedAsn}</div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span className="text-[11px] text-slate-500 uppercase font-semibold">Active Provider</span>
+                <div className="text-sm font-bold text-slate-900 mt-0.5">{profile.detectedIsp}</div>
+                <div className="text-[11px] text-emerald-700 font-mono">{profile.detectedAsn}</div>
               </div>
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                <span className="text-[11px] text-slate-400 uppercase">Connection</span>
-                <div className="text-sm font-bold text-emerald-400 mt-0.5">{profile.ispProfile.connType}</div>
-                <div className="text-[11px] text-slate-400">{profile.ispProfile.latencyTier}</div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span className="text-[11px] text-slate-500 uppercase font-semibold">Connection</span>
+                <div className="text-sm font-bold text-emerald-700 mt-0.5">{profile.ispProfile.connType}</div>
+                <div className="text-[11px] text-slate-600">{profile.ispProfile.latencyTier}</div>
               </div>
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                <span className="text-[11px] text-slate-400 uppercase">Typical Speed</span>
-                <div className="text-sm font-bold text-indigo-300 mt-0.5">{profile.ispProfile.avgSpeed}</div>
-                <div className="text-[11px] text-slate-400">{profile.ispProfile.householdCoverage}</div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span className="text-[11px] text-slate-500 uppercase font-semibold">Typical Speed</span>
+                <div className="text-sm font-bold text-slate-900 mt-0.5">{profile.ispProfile.avgSpeed}</div>
+                <div className="text-[11px] text-slate-600">{profile.ispProfile.householdCoverage}</div>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
               {profile.ispProfile.topIsps.map((ispItem, idx) => (
-                <div key={idx} className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold text-white">{ispItem.name}</span>
-                    <span className="text-[10px] bg-cyan-950 text-cyan-300 px-1.5 py-0.5 rounded font-mono">
+                    <span className="font-bold text-slate-900">{ispItem.name}</span>
+                    <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-mono font-bold">
                       {ispItem.share}
                     </span>
                   </div>
-                  <div className="text-slate-400">{ispItem.tech}</div>
+                  <div className="text-slate-600">{ispItem.tech}</div>
                   <div className="text-[10px] text-slate-500 mt-1">{ispItem.note}</div>
                 </div>
               ))}
@@ -745,15 +743,15 @@ export default function HomePage() {
       </div>
 
       {/* Calibration Controls Drawer */}
-      <section className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-        <h3 className="text-xs font-mono uppercase text-indigo-400 font-bold">
+      <section className="bg-slate-50 border border-slate-200 p-6 rounded-2xl space-y-4 shadow-sm">
+        <h3 className="text-xs font-mono uppercase text-emerald-700 font-bold">
           Demographic Calibration Sliders
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           <div>
-            <div className="flex justify-between text-slate-300 mb-1">
+            <div className="flex justify-between text-slate-700 mb-1">
               <span>Income Multiplier</span>
-              <span className="font-mono text-indigo-400">{customMult.toFixed(1)}x</span>
+              <span className="font-mono text-emerald-700 font-bold">{customMult.toFixed(1)}x</span>
             </div>
             <input
               type="range"
@@ -762,13 +760,13 @@ export default function HomePage() {
               step="0.1"
               value={customMult}
               onChange={(e) => setCustomMult(Number(e.target.value))}
-              className="w-full accent-indigo-500"
+              className="w-full accent-emerald-600"
             />
           </div>
           <div>
-            <div className="flex justify-between text-slate-300 mb-1">
+            <div className="flex justify-between text-slate-700 mb-1">
               <span>Tax Rate Override</span>
-              <span className="font-mono text-indigo-400">{taxOverride !== null ? `${taxOverride}%` : 'Auto'}</span>
+              <span className="font-mono text-emerald-700 font-bold">{taxOverride !== null ? `${taxOverride}%` : 'Auto'}</span>
             </div>
             <input
               type="range"
@@ -777,13 +775,13 @@ export default function HomePage() {
               step="1"
               value={taxOverride || 22}
               onChange={(e) => setTaxOverride(Number(e.target.value))}
-              className="w-full accent-indigo-500"
+              className="w-full accent-emerald-600"
             />
           </div>
           <div>
-            <div className="flex justify-between text-slate-300 mb-1">
+            <div className="flex justify-between text-slate-700 mb-1">
               <span>Family Weight</span>
-              <span className="font-mono text-amber-400">{familyWeight}</span>
+              <span className="font-mono text-amber-700 font-bold">{familyWeight}</span>
             </div>
             <input
               type="range"
@@ -792,16 +790,16 @@ export default function HomePage() {
               step="1"
               value={familyWeight}
               onChange={(e) => setFamilyWeight(Number(e.target.value))}
-              className="w-full accent-amber-500"
+              className="w-full accent-amber-600"
             />
           </div>
           <div className="flex items-end">
             <button
               onClick={() => setEvBoost(!evBoost)}
-              className={`w-full py-2 rounded-xl border text-xs font-bold transition ${
+              className={`w-full py-2 rounded-xl border text-xs font-bold transition shadow-sm ${
                 evBoost
-                  ? 'bg-amber-950 border-amber-500 text-amber-300'
-                  : 'bg-slate-950 border-slate-700 text-slate-400'
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                  : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
               }`}
             >
               {evBoost ? '⚡ EV Bias Active' : 'Boost EV Adoption'}
