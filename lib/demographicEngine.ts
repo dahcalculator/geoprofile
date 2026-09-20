@@ -1,581 +1,690 @@
-import { DemographicProfile, PlausibilityResult, ChildProfile } from './types';
+import {
+  DemographicProfile,
+  PlausibilityResult,
+  RealEstateListing,
+  ChildProfile,
+} from './types';
 
-const CURRENT_SURVEY_YEAR = 2026; //
+// ==========================================
+// 1. 4-COUNTRY REAL ESTATE BENCHMARK CATALOG
+// ==========================================
+export const REAL_ESTATE_BY_REGION: Record<string, RealEstateListing[]> = {
+  NG: [
+    {
+      platform: 'PropertyPro.ng',
+      title: '4-Bedroom Terraced Duplex with BQ',
+      location: 'Life Camp / Gwarinpa, Abuja, FCT',
+      price: '₦185,000,000',
+      size: '420 sqm living area',
+      specs: '4 Beds • 5 Baths • 1 Room BQ • Solar Inverter',
+      url: 'https://propertypro.ng/property-for-sale/in/abuja',
+      badge: 'Verified Agent',
+    },
+    {
+      platform: 'Nigeria Property Centre',
+      title: '5-Bedroom Fully Detached Smart Duplex',
+      location: 'Maitama / Guzape, Abuja, FCT',
+      price: '₦450,000,000',
+      size: '650 sqm plot (480 sqm build)',
+      specs: '5 Beds • 6 Baths • Private Pool • Gatehouse',
+      url: 'https://nigeriapropertycentre.com/for-sale/houses/abuja',
+      badge: 'C of O / FCDA',
+    },
+    {
+      platform: 'PropertyPro.ng',
+      title: '3-Bedroom Luxury Apartment with Serviced Elevator',
+      location: 'Katampe Main / Jabi Corridors, Abuja, FCT',
+      price: '₦95,000,000',
+      size: '210 sqm living area',
+      specs: '3 Beds • 3 Baths • 24/7 Power • Facility Gym',
+      url: 'https://propertypro.ng/property-for-sale/in/abuja',
+      badge: 'Serviced Residence',
+    },
+  ],
+  US: [
+    {
+      platform: 'Zillow',
+      title: 'Modern Single-Family Contemporary Residence',
+      location: 'Palo Alto / Mountain View, Silicon Valley, CA',
+      price: '$2,485,000',
+      size: '2,240 sq ft (0.18 acre lot)',
+      specs: '4 Beds • 3 Baths • 2-Car Garage • Solar EV Hookup',
+      url: 'https://www.zillow.com/homes/for_sale/',
+      badge: 'MLS Verified',
+    },
+    {
+      platform: 'Redfin',
+      title: 'Multi-Level Executive Craftsman Home',
+      location: 'Sunnyvale, Santa Clara County, CA',
+      price: '$1,920,000',
+      size: '1,860 sq ft',
+      specs: '3 Beds • 2.5 Baths • Open Floorplan • Smart HVAC',
+      url: 'https://www.redfin.com/',
+      badge: 'Redfin Hot Home',
+    },
+    {
+      platform: 'Zillow',
+      title: 'Luxury High-Rise Penthouse Condominium',
+      location: 'SoMa / South Beach, San Francisco, CA',
+      price: '$1,350,000',
+      size: '1,320 sq ft',
+      specs: '2 Beds • 2 Baths • Concierge • Deeded Parking',
+      url: 'https://www.zillow.com/homes/for_sale/',
+      badge: 'HOA Managed',
+    },
+  ],
+  UK: [
+    {
+      platform: 'Rightmove',
+      title: 'Victorian 4-Bedroom Freehold Terraced House',
+      location: 'Clapham / Wandsworth, London SW4',
+      price: '£1,180,000',
+      size: '1,650 sq ft (153.3 sqm)',
+      specs: '4 Beds • 2 Baths • South-Facing Garden • Cellar',
+      url: 'https://www.rightmove.co.uk/property-for-sale.html',
+      badge: 'Freehold Tenure',
+    },
+    {
+      platform: 'Zoopla',
+      title: 'Refurbished Mews House with Integral Garage',
+      location: 'Marylebone / Westminster, London W1',
+      price: '£2,250,000',
+      size: '1,420 sq ft (132 sqm)',
+      specs: '3 Beds • 3 Baths • Private Mews Access • EPC B',
+      url: 'https://www.zoopla.co.uk/for-sale/houses/london/',
+      badge: 'Central London',
+    },
+    {
+      platform: 'Rightmove',
+      title: 'Modern Riverside Apartment with Balcony',
+      location: 'Canary Wharf / Wapping, London E14',
+      price: '£640,000',
+      size: '880 sq ft (81.8 sqm)',
+      specs: '2 Beds • 2 Baths • 24hr Concierge • Roof Garden',
+      url: 'https://www.rightmove.co.uk/property-for-sale.html',
+      badge: '999-Yr Lease',
+    },
+  ],
+  AU: [
+    {
+      platform: 'Realestate.com.au',
+      title: 'Architectural Family Home with Alfresco Deck',
+      location: 'Paddington / Balmain, Sydney, NSW',
+      price: 'A$2,350,000',
+      size: '220 sqm internal (380 sqm land)',
+      specs: '4 Beds • 2.5 Baths • Double Lockup Garage',
+      url: 'https://www.realestate.com.au/buy',
+      badge: 'Auction / Private',
+    },
+    {
+      platform: 'Domain',
+      title: 'Modern Inner-City Terrace Residence',
+      location: 'Surry Hills, Sydney, NSW',
+      price: 'A$1,780,000',
+      size: '145 sqm internal',
+      specs: '3 Beds • 2 Baths • Courtyard • Rear Lane Access',
+      url: 'https://www.domain.com.au/',
+      badge: 'Torrens Title',
+    },
+    {
+      platform: 'Realestate.com.au',
+      title: 'Harbourside Luxury Executive Apartment',
+      location: 'Pyrmont / Barangaroo, Sydney, NSW',
+      price: 'A$1,290,000',
+      size: '98 sqm living space',
+      specs: '2 Beds • 2 Baths • Secure Car Space • Pool/Gym',
+      url: 'https://www.realestate.com.au/buy',
+      badge: 'Strata Title',
+    },
+  ],
+};
 
-export const REGIONAL_KNOWLEDGE_BASE: Record<string, any> = {
+// ==========================================
+// 2. 4-COUNTRY REGIONAL MACROECONOMIC DATA
+// ==========================================
+const REGIONAL_DATA: Record<string, any> = {
   NG: {
-    currency: 'NGN (₦)', //[cite: 1]
-    currencySymbol: '₦', //[cite: 1]
-    baseIncomeGross: 15400000, //[cite: 1]
-    avgTaxRate: 0.18, //[cite: 1]
-    maritalStatus: '62% Married / 38% Single', //[cite: 1]
-    homeOwnership: '55% Homeowner / 45% Renter', //[cite: 1]
+    currencySymbol: '₦',
+    currencyCode: 'NGN',
+    baseSalary: 11500000,
+    store: 'Shoprite / Spar Nigeria',
+    storeType: 'Tier-1 Hypermarket & Superstore',
+    bank: 'Zenith Bank / Access Bank',
+    bankType: 'Commercial Tier-1 Financial Institution',
+    sports: ['Football (NPFL/EPL)', 'Basketball', 'Athletics & Sprints', 'Volleyball', 'Table Tennis'],
+    spectatorSport: 'Arsenal FC / Premier League & Super Eagles',
     majorIndustries: [
-      {
-        rank: 1, //[cite: 1]
-        name: 'Public Administration & Civil Governance', //[cite: 1]
-        share: '34% Regional Workforce', //[cite: 1]
-        driver: 'Federal ministries, departments, parastatals (MDAs), and international diplomatic missions.', //[cite: 1]
-        growth: '+4.2% Annual Budget Expansion', //[cite: 1]
-        anchor: 'Three Arms Zone & Central Business District (CBD), Abuja', //[cite: 1]
-      },
-      {
-        rank: 2, //[cite: 1]
-        name: 'Information & Communications Technology (ICT & FinTech)', //[cite: 1]
-        share: '28% Regional Workforce', //[cite: 1]
-        driver: 'Pan-African digital payment rails, telecom backbone operations, software engineering, and mobile banking.', //[cite: 1]
-        growth: '+14.6% YoY Tech Growth', //[cite: 1]
-        anchor: 'Yaba / Victoria Island / Abuja Tech Hub Cluster', //[cite: 1]
-      },
-      {
-        rank: 3, //[cite: 1]
-        name: 'Wholesale Trade, FMCG & Commercial Services', //[cite: 1]
-        share: '22% Regional Workforce', //[cite: 1]
-        driver: 'Consumer product distribution, nationwide logistics supply chains, real estate construction, and commodity commerce.', //[cite: 1]
-        growth: '+6.1% Consumption Expansion', //[cite: 1]
-        anchor: 'Wuse Commercial District / Alaba / Ikeja Trade Hub', //[cite: 1]
-      },
+      { rank: 1, name: 'Public Administration & Civil Governance', share: '34%', driver: 'Federal ministries, parastatals, diplomacy, and civil service oversight.', growth: '+3.1% YoY', anchor: 'Federal Secretariats & MDAs' },
+      { rank: 2, name: 'ICT, FinTech & Digital Software Engineering', share: '28%', driver: 'Pan-African payment switches, banking gateways, and enterprise software.', growth: '+14.6% YoY', anchor: 'Tech Ecosystems & Startups' },
+      { rank: 3, name: 'Commercial Distribution & Wholesale FMCG Trade', share: '22%', driver: 'Regional consumer retail distribution, supply chain hubs, and transit commerce.', growth: '+6.2% YoY', anchor: 'National Transit Corridors' },
     ],
-    occupationsByAge: {
-      junior: [
-        { title: 'Executive Officer / Administrative Analyst', sector: 'Public Administration', share: '36%', tools: 'Public Service Rules, Circulars, Procurement E-Portals' }, //[cite: 1]
-        { title: 'Junior Software & Mobile App Developer', sector: 'ICT & FinTech', share: '32%', tools: 'React Native, Python, Node.js, SQL, Paystack APIs' }, //[cite: 1]
-        { title: 'FMCG Sales & Territory Merchandising Officer', sector: 'Wholesale & FMCG', share: '24%', tools: 'ERP Inventory Systems, Supply Chain CRM, Distribution Logistics' }, //[cite: 1]
+    occupationsByStage: {
+      early: [
+        { title: 'Software Engineer / FinTech Backend Dev', share: '32%', sector: 'Technology', tools: 'TypeScript, Next.js, Node.js, PostgreSQL' },
+        { title: 'Administrative Officer (Grade Level 08)', share: '28%', sector: 'Public Administration', tools: 'Public Service Rules, Civil Memos, TSA' },
+        { title: 'Commercial Operations Associate', share: '22%', sector: 'Retail & Logistics', tools: 'ERP Systems, Inventory Auditing' },
       ],
       mid: [
-        { title: 'Assistant Director / Senior Regulatory Officer', sector: 'Public Administration & Civil Service', share: '35%', tools: 'Treasury Single Account (TSA), Policy Implementation, Bureaucratic Compliance' }, //[cite: 1]
-        { title: 'Senior Backend Engineer / FinTech Systems Architect', sector: 'ICT & FinTech', share: '30%', tools: 'Microservices, Kubernetes, High-Volume Payment Gateways, Cloud Infrastructure' }, //[cite: 1]
-        { title: 'Regional Commercial & Supply Chain Operations Lead', sector: 'Wholesale Trade & Distribution', share: '25%', tools: 'Warehouse Fleet Management, Key Accounts, FMCG Cold-Chain Strategy' }, //[cite: 1]
+        { title: 'Assistant Director / Regulatory Affairs Lead', share: '35%', sector: 'Governance & MDAs', tools: 'Statutory Compliance, Fiscal Audits, Policy Frameworks' },
+        { title: 'Lead Distributed Systems Architect', share: '29%', sector: 'Technology', tools: 'Cloud Infrastructure, Microservices, Python' },
+        { title: 'Regional Supply Chain & Trade Director', share: '20%', sector: 'Distribution & Trade', tools: 'Contract Negotiation, Multimodal Logistics' },
       ],
       senior: [
-        { title: 'Director / Permanent Secretary in Civil Service', sector: 'Public Administration', share: '38%', tools: 'National Policy Governance, Federal Budget Defense, Ministerial Oversight' }, //[cite: 1]
-        { title: 'VP of Technology / Chief Information Officer (CIO)', sector: 'ICT & Telecoms', share: '28%', tools: 'Enterprise Cloud Strategy, Regulatory Telecommunications Licensing' }, //[cite: 1]
-        { title: 'Managing Director / Corporate Commercial Distributor', sector: 'FMCG & Logistics Assets', share: '22%', tools: 'Import/Export Clearing, Multi-Regional FMCG Franchising' }, //[cite: 1]
+        { title: 'Permanent Secretary / Director (Federal MDA)', share: '38%', sector: 'Governance & Public Service', tools: 'Budget Appropriation, Inter-Ministerial Policy' },
+        { title: 'Chief Technology Officer / Enterprise Partner', share: '31%', sector: 'Technology & Enterprise', tools: 'Board Governance, Enterprise Strategy' },
+        { title: 'Managing Director / Corporate Trade Principal', share: '21%', sector: 'Commerce & Logistics', tools: 'Consortium Finance, Macro Distribution' },
       ],
     },
-    ispProfile: {
-      connType: '4G/5G Wireless Broadband, FTTH & Satellite (Starlink)', //[cite: 1]
-      avgSpeed: '35 - 180 Mbps Down', //[cite: 1]
-      latencyTier: '25ms - 55ms (Subsea Cables Equiano/2Africa)', //[cite: 1]
-      householdCoverage: '68% Mobile Data / 26% Fixed Broadband', //[cite: 1]
+    ispInfrastructure: {
+      connType: '4G LTE / 5G Fixed Wireless & GPON Fiber',
+      avgSpeed: '35 - 180 Mbps',
+      latencyTier: '25 - 45 ms (Subsea landing points)',
+      householdCoverage: 'Urban Fiber Ring & Cellular Microcells',
       topIsps: [
-        { name: 'MTN Nigeria (HyNetflex & 5G)', share: '42%', tech: '5G Fixed Wireless & FTTH', tier: '50-250 Mbps', note: 'Largest telecom & 5G provider in West Africa' }, //[cite: 1]
-        { name: 'Airtel Nigeria (SmartSPEED)', share: '28%', tech: '4G LTE-A & 5G Home Router', tier: '30-150 Mbps', note: 'Extensive metropolitan data footprint' }, //[cite: 1]
-        { name: 'ipNX / Spectranet / Starlink', share: '19%', tech: 'Direct Metro FTTH & LEO Satellite', tier: '50-220 Mbps', note: 'Leading residential fiber & satellite choice' }, //[cite: 1]
+        { name: 'MTN Nigeria', share: '38%', tech: '5G Fixed Wireless / Hybrid Fiber', note: 'Equiano & 2Africa Subsea Capacity' },
+        { name: 'Airtel Nigeria', share: '29%', tech: '4G LTE-Advanced / Carrier Fiber', note: 'Metropolitan Metro Rings' },
+        { name: 'ipNX / Spectranet', share: '18%', tech: 'Direct FTTH GPON', note: 'Direct Commercial Gigabit Nodes' },
       ],
     },
-    store: 'Shoprite, Spar Hypermarket & Wuse Market Hubs', //[cite: 1]
-    storeType: 'Modern mall hypermarket & regional wholesale trading markets', //[cite: 1]
-    bank: 'Zenith Bank, GTBank & Access Bank', //[cite: 1]
-    bankType: 'Tier-1 commercial digital-first banking institutions', //[cite: 1]
-    spectatorSport: 'European Football (Premier League) & Super Eagles', //[cite: 1]
-    mediaProfile: {
-      baseSvod: ['Showmax (DStv Stream)', 'Netflix Nigeria (Nollywood)', 'YouTube Mobile', 'Prime Video Africa'], //[cite: 1]
-      kidsSvod: ['DStv Kids (Cartoon Network/Nickelodeon)', 'YouTube Kids'], //[cite: 1]
-      matureSvod: ['IrokoTV', 'Arise News Online', 'Africa Magic Showcase'], //[cite: 1]
-      baseAudio: ['Boomplay Music', 'Audiomack', 'Spotify Africa', 'Apple Music Nigeria'], //[cite: 1]
-      tvStations: [
-        { name: 'Channels Television', type: 'National Independent News Network' }, //[cite: 1]
-        { name: 'Africa Magic (Urban / Showcase on DStv)', type: 'Nollywood Drama & Cinema' }, //[cite: 1]
-        { name: 'SuperSport (DStv / GOtv)', type: 'Live Premier League & Global Sports' }, //[cite: 1]
-      ],
-      radioStations: [
-        { name: 'Wazobia FM 95.1', genre: 'Pidgin English Urban Talk & Afrobeat Hits' }, //[cite: 1]
-        { name: 'Cool FM 96.9', genre: 'Contemporary Pop & Entertainment News' }, //[cite: 1]
-        { name: 'Nigeria Info FM 99.3', genre: 'Current Affairs & Political Talk' }, //[cite: 1]
-      ],
+    entertainment: {
+      dietTag: 'Afrobeats, Digital Nollywood & Premium Sports',
+      subCount: '2.4 Active Subscriptions',
+      videoApps: ['Showmax Nigeria', 'Netflix NG', 'YouTube Premium'],
+      audioApps: ['Spotify Africa', 'Boomplay Music', 'Apple Music'],
+      tvStations: [{ name: 'Channels Television' }, { name: 'Arise News' }, { name: 'AIT' }],
+      radioStations: [{ name: 'Wazobia FM (99.5)' }, { name: 'Cool FM (96.9)' }, { name: 'Nigeria Info (95.1)' }],
     },
   },
   US: {
-    currency: 'USD ($)', //[cite: 1]
-    currencySymbol: '$', //[cite: 1]
-    baseIncomeGross: 84500, //[cite: 1]
-    avgTaxRate: 0.24, //[cite: 1]
-    maritalStatus: '51% Married / 49% Unmarried', //[cite: 1]
-    homeOwnership: '65% Homeowner / 35% Renter', //[cite: 1]
+    currencySymbol: '$',
+    currencyCode: 'USD',
+    baseSalary: 94000,
+    store: 'Target / Costco Wholesale',
+    storeType: 'National Club Hypermarket',
+    bank: 'Chase / Bank of America',
+    bankType: 'Tier-1 Multinational Financial Group',
+    sports: ['American Football (NFL)', 'Basketball (NBA)', 'Baseball (MLB)', 'Soccer', 'Running'],
+    spectatorSport: 'NFL Super Bowl & NBA Playoffs',
     majorIndustries: [
-      {
-        rank: 1, //[cite: 1]
-        name: 'Cloud Computing, Software Platforms & AI', //[cite: 1]
-        share: '35% Regional Workforce', //[cite: 1]
-        driver: 'Enterprise SaaS architecture, generative AI systems, and global hyperscale infrastructure.', //[cite: 1]
-        growth: '+12.4% Annual Capital Inflow', //[cite: 1]
-        anchor: 'Silicon Valley / Austin Tech Corridor', //[cite: 1]
-      },
-      {
-        rank: 2, //[cite: 1]
-        name: 'Healthcare Systems, Biotechnology & Life Sciences', //[cite: 1]
-        share: '26% Regional Workforce', //[cite: 1]
-        driver: 'Integrated health networks, biomedical engineering, clinical pharmacology, and genomics research.', //[cite: 1]
-        growth: '+7.8% Healthcare Demand', //[cite: 1]
-        anchor: 'Regional Medical Centers & Biotech Parks', //[cite: 1]
-      },
-      {
-        rank: 3, //[cite: 1]
-        name: 'Financial Services, Investment Management & FinTech', //[cite: 1]
-        share: '21% Regional Workforce', //[cite: 1]
-        driver: 'Asset management, venture capital syndicates, digital retail banking, and commercial underwriting.', //[cite: 1]
-        growth: '+5.5% Asset Expansion', //[cite: 1]
-        anchor: 'Financial District & Venture Capital Hubs', //[cite: 1]
-      },
+      { rank: 1, name: 'Cloud Computing & Enterprise Technology', share: '36%', driver: 'Hyperscale cloud, generative AI platforms, and enterprise software.', growth: '+11.8% YoY', anchor: 'Silicon Valley & Coastal Tech Corridors' },
+      { rank: 2, name: 'Healthcare & Biomedical Engineering', share: '29%', driver: 'Genomic therapeutics, outpatient clinical systems, and medical devices.', growth: '+7.4% YoY', anchor: 'Regional University Medical Centers' },
+      { rank: 3, name: 'Commercial Banking & Quantitative Finance', share: '21%', driver: 'Asset management, automated trading networks, and venture finance.', growth: '+4.9% YoY', anchor: 'Financial District Exchanges' },
     ],
-    occupationsByAge: {
-      junior: [
-        { title: 'Associate Software & Cloud Engineer', sector: 'Cloud & AI Systems', share: '36%', tools: 'AWS, Python, React, TypeScript, Docker, Git' }, //[cite: 1]
-        { title: 'Registered Clinical Staff Nurse (RN)', sector: 'Healthcare Systems', share: '31%', tools: 'Epic EHR, Patient Triage, Clinical Care Protocols' }, //[cite: 1]
-        { title: 'Junior Financial & Valuation Analyst', sector: 'Financial Services', share: '24%', tools: 'Excel DCF Modeling, Bloomberg Terminal, SQL' }, //[cite: 1]
+    occupationsByStage: {
+      early: [
+        { title: 'Software Engineer II (Full-Stack)', share: '34%', sector: 'Technology', tools: 'React, TypeScript, AWS, Docker' },
+        { title: 'Clinical Operations Analyst', share: '27%', sector: 'Healthcare', tools: 'Epic Systems, HIPAA Compliance, R' },
+        { title: 'Financial Analyst (Equities)', share: '22%', sector: 'Finance', tools: 'Bloomberg Terminal, Financial Modeling, Python' },
       ],
       mid: [
-        { title: 'Senior Software Engineer / DevOps Architect', sector: 'Cloud Computing & AI', share: '38%', tools: 'Kubernetes, Terraform, Microservices, CI/CD Pipelines' }, //[cite: 1]
-        { title: 'Attending Physician / Family Medicine Practitioner', sector: 'Healthcare Systems', share: '30%', tools: 'Clinical Diagnosis, Medical Board Licensure, Practice Management' }, //[cite: 1]
-        { title: 'Senior Commercial Underwriter / Portfolio Lead', sector: 'Financial Services', share: '22%', tools: 'Credit Risk Analysis, Asset Allocation, FinTech APIs' }, //[cite: 1]
+        { title: 'Senior Engineering Manager / Staff Architect', share: '38%', sector: 'Technology', tools: 'System Architecture, Distributed Systems, Org Scaling' },
+        { title: 'Healthcare Solutions Director', share: '26%', sector: 'Healthcare', tools: 'Regulatory Affairs, Clinical Trials, FDA Protocols' },
+        { title: 'Portfolio Asset Manager', share: '20%', sector: 'Finance', tools: 'Risk Parity, Fixed Income Arbitrage, SQL' },
       ],
       senior: [
-        { title: 'VP of Engineering / Principal Enterprise Architect', sector: 'Cloud Computing & Tech', share: '40%', tools: 'Multi-Cloud Strategy, Org Scaling, Tech Governance' }, //[cite: 1]
-        { title: 'Chief Medical Officer (CMO) / Surgical Director', sector: 'Healthcare & Clinical Sciences', share: '28%', tools: 'Hospital Clinical Governance, Health Informatics Leadership' }, //[cite: 1]
-        { title: 'Managing Director / Partner in Asset Management', sector: 'Investment & Banking', share: '22%', tools: 'Portfolio Strategy, Capital Raising, M&A Governance' }, //[cite: 1]
+        { title: 'VP of Technology / Infrastructure Principal', share: '40%', sector: 'Technology', tools: 'Capital Allocation, Technology Roadmap, Executive Leadership' },
+        { title: 'Chief Medical Officer / Clinical Executive', share: '28%', sector: 'Healthcare', tools: 'Clinical Governance, Hospital Systems Administration' },
+        { title: 'Managing Director / Private Equity Principal', share: '22%', sector: 'Finance', tools: 'LBO Modeling, M&A Sourcing, Board Representation' },
       ],
     },
-    ispProfile: {
-      connType: 'Fiber FTTH & DOCSIS 3.1 Gigabit Cable', //[cite: 1]
-      avgSpeed: '300 Mbps - 1.2 Gbps Down', //[cite: 1]
-      latencyTier: '< 18ms Low Latency (Fiber / Coaxial)', //[cite: 1]
-      householdCoverage: '89% Broadband Penetration', //[cite: 1]
+    ispInfrastructure: {
+      connType: 'DOCSIS 3.1 Gigabit Cable / Synchronous FTTH Fiber',
+      avgSpeed: '300 - 1,000 Mbps',
+      latencyTier: '12 - 25 ms (Continental backbone)',
+      householdCoverage: 'Ubiquitous Coaxial & FTTH Infrastructure',
       topIsps: [
-        { name: 'Xfinity (Comcast)', share: '38%', tech: 'DOCSIS 3.1 / Fiber', tier: '400-1200 Mbps', note: 'Largest US cable broadband provider' }, //[cite: 1]
-        { name: 'AT&T Fiber / Internet', share: '29%', tech: 'Symmetrical FTTH', tier: '500-5000 Mbps', note: 'Fastest growing gigabit fiber footprint' }, //[cite: 1]
-        { name: 'Verizon Fios / 5G Home', share: '21%', tech: 'Pure Fiber & C-Band 5G', tier: '300-1000 Mbps', note: 'Dominant Northeast fiber & nationwide 5G' }, //[cite: 1]
+        { name: 'Comcast Xfinity', share: '41%', tech: 'DOCSIS 4.0 / FTTH Fiber', note: 'National Low-Latency Cable Backbone' },
+        { name: 'AT&T Fiber', share: '32%', tech: 'Direct Symmetrical XGS-PON', note: 'Dedicated Residential Fiber' },
+        { name: 'Verizon Fios', share: '21%', tech: 'Direct FTTH Optical', note: 'Metro East Coast Backbone' },
       ],
     },
-    store: 'Costco Wholesale, Target & Trader Joe’s', //[cite: 1]
-    storeType: 'Wholesale warehouse club, superstore & gourmet grocery', //[cite: 1]
-    bank: 'JPMorgan Chase & Bank of America', //[cite: 1]
-    bankType: 'Premier national depository & retail banking institutions', //[cite: 1]
-    spectatorSport: 'NFL Football & NBA Basketball', //[cite: 1]
-    mediaProfile: {
-      baseSvod: ['Netflix', 'Amazon Prime Video', 'Hulu / Max', 'YouTube Premium'], //[cite: 1]
-      kidsSvod: ['Disney+', 'YouTube Kids', 'PBS Kids'], //[cite: 1]
-      matureSvod: ['Paramount+', 'Apple TV+', 'Criterion Channel'], //[cite: 1]
-      baseAudio: ['Spotify', 'Apple Music', 'Pandora', 'Apple Podcasts'], //[cite: 1]
-      tvStations: [
-        { name: 'NBC / Peacock', type: 'Major Commercial Terrestrial Network' }, //[cite: 1]
-        { name: 'CBS Network', type: 'National Primetime Broadcaster' }, //[cite: 1]
-        { name: 'ESPN / ABC', type: 'Live National Sports Network' }, //[cite: 1]
-      ],
-      radioStations: [
-        { name: 'NPR / WNYC', genre: 'National Public Radio / In-Depth Talk' }, //[cite: 1]
-        { name: 'iHeartRadio Top 40', genre: 'Contemporary Hit Music Radio' }, //[cite: 1]
-        { name: 'SiriusXM Satellite Radio', genre: 'Commercial-Free Satellite Programming' }, //[cite: 1]
-      ],
+    entertainment: {
+      dietTag: 'On-Demand Streaming & Live Sports Networks',
+      subCount: '3.6 Active Subscriptions',
+      videoApps: ['Netflix', 'Max (HBO)', 'Amazon Prime Video'],
+      audioApps: ['Spotify', 'Apple Music', 'Pandora'],
+      tvStations: [{ name: 'CNN' }, { name: 'NBC' }, { name: 'ESPN' }],
+      radioStations: [{ name: 'NPR / WNYC' }, { name: 'iHeartMedia Hits' }, { name: 'SiriusXM Satellite' }],
     },
   },
-  DEFAULT: {
-    currency: 'USD ($)', //[cite: 1]
-    currencySymbol: '$', //[cite: 1]
-    baseIncomeGross: 62000, //[cite: 1]
-    avgTaxRate: 0.22, //[cite: 1]
-    maritalStatus: '52% Married / 48% Single', //[cite: 1]
-    homeOwnership: '60% Homeowner / 40% Renter', //[cite: 1]
+  UK: {
+    currencySymbol: '£',
+    currencyCode: 'GBP',
+    baseSalary: 52000,
+    store: 'Sainsbury’s / Waitrose & Partners',
+    storeType: 'Premium Supermarket Chain',
+    bank: 'Barclays / HSBC UK',
+    bankType: 'High Street Clearing Bank',
+    sports: ['Football (Premier League)', 'Cricket', 'Rugby Union', 'Tennis', 'Cycling'],
+    spectatorSport: 'Premier League & Wimbledon Championships',
     majorIndustries: [
-      {
-        rank: 1, //[cite: 1]
-        name: 'Public Administration & Civil Governance', //[cite: 1]
-        share: '32% Regional Workforce', //[cite: 1]
-        driver: 'Government agency services, regional municipal administration, and regulatory public works.', //[cite: 1]
-        growth: '+4.0% Municipal Expansion', //[cite: 1]
-        anchor: 'Metropolitan Government Center', //[cite: 1]
-      },
-      {
-        rank: 2, //[cite: 1]
-        name: 'Retail Trade, FMCG & Wholesale Logistics', //[cite: 1]
-        share: '28% Regional Workforce', //[cite: 1]
-        driver: 'Consumer merchandise distribution, supply-chain warehousing, and regional store operations.', //[cite: 1]
-        growth: '+5.5% Commercial Growth', //[cite: 1]
-        anchor: 'Central Commercial & Trade Center', //[cite: 1]
-      },
-      {
-        rank: 3, //[cite: 1]
-        name: 'Technology, Communications & Financial Services', //[cite: 1]
-        share: '24% Regional Workforce', //[cite: 1]
-        driver: 'Telecommunications operations, enterprise software deployment, and commercial bank branches.', //[cite: 1]
-        growth: '+7.2% Digital Services', //[cite: 1]
-        anchor: 'Business & Financial Quarter', //[cite: 1]
-      },
+      { rank: 1, name: 'FinTech, Wealth Management & Insurance', share: '37%', driver: 'Global insurance syndicates (Lloyds), FX dealing, and challenger banking.', growth: '+5.4% YoY', anchor: 'City of London & Canary Wharf' },
+      { rank: 2, name: 'Life Sciences & Pharmaceutical R&D', share: '27%', driver: 'Biotech innovation hubs, clinical trials, and oncology research.', growth: '+8.1% YoY', anchor: 'Golden Triangle (Oxford/Cambridge/London)' },
+      { rank: 3, name: 'Creative Media, Broadcasting & Production', share: '21%', driver: 'Global film production studios, post-production, and digital publishing.', growth: '+4.2% YoY', anchor: 'West End & MediaCityUK' },
     ],
-    occupationsByAge: {
-      junior: [
-        { title: 'Junior Administrative Officer', sector: 'Public Administration', share: '35%', tools: 'Office Suites, Records Management, Public Portals' }, //[cite: 1]
-        { title: 'Commercial Merchandising Associate', sector: 'Retail Trade & FMCG', share: '32%', tools: 'Inventory POS Systems, Stock Planning' }, //[cite: 1]
-        { title: 'IT Support & Systems Analyst', sector: 'Technology & Telecom', share: '24%', tools: 'Helpdesk Software, Network Routing, Windows Server' }, //[cite: 1]
+    occupationsByStage: {
+      early: [
+        { title: 'Associate Quantitative Analyst', share: '33%', sector: 'Financial Services', tools: 'Python, Pandas, SQL, Tableau' },
+        { title: 'Junior Clinical Research Scientist', share: '26%', sector: 'Life Sciences', tools: 'PCR, Data Analysis, Bio-Informatics' },
+        { title: 'Digital Content & UX Producer', share: '23%', sector: 'Creative Media', tools: 'Figma, Adobe Creative Suite, CMS' },
       ],
       mid: [
-        { title: 'Senior Regulatory & Operations Specialist', sector: 'Public Administration', share: '36%', tools: 'Program Management, Public Compliance, Budget Review' }, //[cite: 1]
-        { title: 'Regional Supply Chain Manager', sector: 'Retail & Distribution', share: '30%', tools: 'Warehouse Management Systems, Route Fleet Planning' }, //[cite: 1]
-        { title: 'Senior Software Systems Analyst', sector: 'Technology Services', share: '23%', tools: 'Database Administration, Cloud Services, Python' }, //[cite: 1]
+        { title: 'Senior VP / Risk Governance Officer', share: '36%', sector: 'Financial Services', tools: 'FCA Compliance, Solvency II, Capital Adequacy' },
+        { title: 'Principal Scientist / Discovery Lead', share: '28%', sector: 'Life Sciences', tools: 'Assay Optimization, IP Filing, Clinical Pipelines' },
+        { title: 'Head of Digital Channels / Media Lead', share: '22%', sector: 'Creative Media', tools: 'Multi-Channel Strategy, Rights Licensing' },
       ],
       senior: [
-        { title: 'Director of Public Agency / Operations Lead', sector: 'Public Administration', share: '38%', tools: 'Civil Service Governance, Policy Leadership' }, //[cite: 1]
-        { title: 'Commercial Director of Wholesale Trade', sector: 'FMCG & Logistics', share: '28%', tools: 'Corporate Accounts, Distribution Franchising' }, //[cite: 1]
-        { title: 'Chief Technology Officer / IT Director', sector: 'Technology & Telecom', share: '22%', tools: 'Enterprise IT Architecture, Network Infrastructure' }, //[cite: 1]
+        { title: 'Partner / Senior Managing Director', share: '39%', sector: 'Financial Services', tools: 'Asset Allocation, Institutional Client Management' },
+        { title: 'VP of Global Drug Development', share: '30%', sector: 'Life Sciences', tools: 'Global Clinical Strategy, Regulatory Approvals' },
+        { title: 'Executive Creative Director / Media VP', share: '21%', sector: 'Creative Media', tools: 'Network Commissioning, Strategic Branding' },
       ],
     },
-    ispProfile: {
-      connType: 'Broadband Fiber & 4G/5G Wireless', //[cite: 1]
-      avgSpeed: '100 - 300 Mbps Down', //[cite: 1]
-      latencyTier: '< 30ms Regional IXP', //[cite: 1]
-      householdCoverage: '78% Broadband Availability', //[cite: 1]
+    ispInfrastructure: {
+      connType: 'Openreach Full Fibre FTTP / Virgin DOCSIS 3.1',
+      avgSpeed: '150 - 500 Mbps',
+      latencyTier: '14 - 28 ms (LINX interconnection)',
+      householdCoverage: 'National Full Fibre Rollout (FTTP)',
       topIsps: [
-        { name: 'National Telecom Operator', share: '45%', tech: 'FTTH Fiber & VDSL', tier: '100-500 Mbps', note: 'Primary national telecom carrier' }, //[cite: 1]
-        { name: 'Commercial Broadband Network', share: '30%', tech: 'DOCSIS Cable & Fiber', tier: '200-1000 Mbps', note: 'Metro fast internet provider' }, //[cite: 1]
-        { name: '5G Fixed Wireless Network', share: '18%', tech: 'Fixed Wireless Access (FWA)', tier: '50-200 Mbps', note: 'Suburban mobile broadband' }, //[cite: 1]
+        { name: 'BT / EE Home Broadband', share: '36%', tech: 'Openreach FTTP Symmetrical', note: 'National Telecommunications Grid' },
+        { name: 'Virgin Media O2', share: '31%', tech: 'Gigabit Hybrid Coax/Fiber', note: 'Project Lightning Fiber Network' },
+        { name: 'Sky Broadband', share: '22%', tech: 'FTTP Optical Network', note: 'Entertainment & Broadband Bundle' },
       ],
     },
-    store: 'Carrefour / Metro / Local Superstore', //[cite: 1]
-    storeType: 'Regional grocery hypermarket chain', //[cite: 1]
-    bank: 'Top National Commercial Bank', //[cite: 1]
-    bankType: 'Full-service commercial retail bank', //[cite: 1]
-    spectatorSport: 'International Football & Regional Athletics', //[cite: 1]
-    mediaProfile: {
-      baseSvod: ['Netflix International', 'YouTube Premium', 'Amazon Prime Video'], //[cite: 1]
-      kidsSvod: ['Disney+', 'YouTube Kids'], //[cite: 1]
-      matureSvod: ['Local Catch-Up TV', 'Apple TV+'], //[cite: 1]
-      baseAudio: ['Spotify', 'YouTube Music', 'Apple Music'], //[cite: 1]
-      tvStations: [
-        { name: 'National Public Television', type: 'State Terrestrial News & Cultural Network' }, //[cite: 1]
-        { name: 'Leading Private Commercial Channel', type: 'Primetime Entertainment & Drama' }, //[cite: 1]
-        { name: 'Regional Sports Broadcaster', type: 'Domestic & International Sports Cable' }, //[cite: 1]
+    entertainment: {
+      dietTag: 'BBC Public Media, Premier League & Global SVOD',
+      subCount: '2.8 Active Subscriptions',
+      videoApps: ['BBC iPlayer', 'Netflix UK', 'Amazon Prime Video'],
+      audioApps: ['Spotify UK', 'BBC Sounds', 'Apple Music'],
+      tvStations: [{ name: 'BBC One' }, { name: 'ITV 1' }, { name: 'Sky Sports Premier League' }],
+      radioStations: [{ name: 'BBC Radio 4' }, { name: 'BBC Radio 1' }, { name: 'LBC News' }],
+    },
+  },
+  AU: {
+    currencySymbol: 'A$',
+    currencyCode: 'AUD',
+    baseSalary: 86000,
+    store: 'Woolworths / Coles Supermarkets',
+    storeType: 'National Supermarket Retailer',
+    bank: 'Commonwealth Bank (CBA) / Westpac',
+    bankType: 'Big Four Australian Commercial Bank',
+    sports: ['Australian Rules Football (AFL)', 'Cricket', 'Rugby League (NRL)', 'Surfing', 'Swimming'],
+    spectatorSport: 'AFL Grand Final & The Ashes Cricket',
+    majorIndustries: [
+      { rank: 1, name: 'Mining Infrastructure & Autonomous Resources', share: '36%', driver: 'Iron ore bulk logistics, autonomous haulage networks, and lithium refinement.', growth: '+6.1% YoY', anchor: 'Pilbara & Western Australian Basin' },
+      { rank: 2, name: 'FinTech, Superannuation & Investment Banking', share: '30%', driver: 'Superannuation fund asset management, buy-now-pay-later, and payment rails.', growth: '+5.7% YoY', anchor: 'Sydney CBD & Barangaroo' },
+      { rank: 3, name: 'Biomedical & AgTech Innovation', share: '21%', driver: 'Drought-resilient genetics, remote tele-medicine, and medical telemetry.', growth: '+8.3% YoY', anchor: 'Parkville Biomedical Precinct' },
+    ],
+    occupationsByStage: {
+      early: [
+        { title: 'Mining Operations Data Engineer', share: '33%', sector: 'Resources & Energy', tools: 'Python, SCADA, OSIsoft PI, PowerBI' },
+        { title: 'Superannuation Investment Analyst', share: '28%', sector: 'FinTech & Banking', tools: 'Excel, Bloomberg, SQL, Asset Modeling' },
+        { title: 'Bio-Agricultural Research Associate', share: '23%', sector: 'AgTech & BioSciences', tools: 'Genomic Sequencing, Laboratory QA' },
       ],
-      radioStations: [
-        { name: 'National Public News Radio', genre: 'State News & Information' }, //[cite: 1]
-        { name: 'Top Commercial Pop FM', genre: 'Contemporary Hit Radio' }, //[cite: 1]
+      mid: [
+        { title: 'Autonomous Fleet Systems Manager', share: '36%', sector: 'Resources & Energy', tools: 'Fleet Telematics, Safety-Critical Systems' },
+        { title: 'Senior Portfolio Manager (Equities)', share: '31%', sector: 'FinTech & Banking', tools: 'APRA Regulatory Compliance, ESG Portfolios' },
+        { title: 'Senior Agronomist / BioSciences Lead', share: '21%', sector: 'AgTech & BioSciences', tools: 'Field Trial Management, Patent Prosecution' },
       ],
+      senior: [
+        { title: 'General Manager of Resource Logistics', share: '40%', sector: 'Resources & Energy', tools: 'Supply Chain Port Operations, Rail Logistics' },
+        { title: 'Chief Investment Officer / Fund Executive', share: '32%', sector: 'FinTech & Banking', tools: 'Board Governance, Fiduciary Compliance' },
+        { title: 'Director of Biomedical R&D', share: '20%', sector: 'AgTech & BioSciences', tools: 'TGA Regulatory Submissions, Global Clinical Trials' },
+      ],
+    },
+    ispInfrastructure: {
+      connType: 'National Broadband Network (NBN FTTP / HFC)',
+      avgSpeed: '100 - 250 Mbps',
+      latencyTier: '18 - 35 ms (Southern cross subsea cable)',
+      householdCoverage: 'Federal Wholesale NBN Architecture',
+      topIsps: [
+        { name: 'Telstra', share: '44%', tech: 'NBN FTTP / 5G Home Internet', note: 'Largest National Fiber & Mobile Operator' },
+        { name: 'Optus', share: '30%', tech: 'NBN Multi-Technology Mix', note: 'Singtel Subsidiary Fiber Interconnect' },
+        { name: 'Aussie Broadband', share: '19%', tech: 'Direct NBN POI Fiber Interconnect', note: 'Specialist High-Bandwidth CVC Network' },
+      ],
+    },
+    entertainment: {
+      dietTag: 'National Sports Broadcasters, Stan & International SVOD',
+      subCount: '2.9 Active Subscriptions',
+      videoApps: ['Stan Australia', 'Netflix Australia', 'Disney+'],
+      audioApps: ['Spotify Australia', 'Apple Music', 'ABC Listen'],
+      tvStations: [{ name: 'ABC Australia' }, { name: 'Channel 7' }, { name: 'Channel 9' }],
+      radioStations: [{ name: 'triple j' }, { name: 'ABC NewsRadio' }, { name: 'Nova 96.9' }],
     },
   },
 };
 
-function getLifeStage(childAge: number) {
-  if (childAge < 2) return { stage: 'Infant', color: 'bg-rose-950/80 text-rose-300 border-rose-800' }; //[cite: 1]
-  if (childAge <= 4) return { stage: 'Toddler', color: 'bg-amber-950/80 text-amber-300 border-amber-800' }; //[cite: 1]
-  if (childAge <= 11) return { stage: 'School-Age', color: 'bg-emerald-950/80 text-emerald-300 border-emerald-800' }; //[cite: 1]
-  if (childAge <= 17) return { stage: 'Teenager', color: 'bg-cyan-950/80 text-cyan-300 border-cyan-800' }; //[cite: 1]
-  return { stage: 'Young Adult / Independent', color: 'bg-purple-950/80 text-purple-300 border-purple-800' }; //[cite: 1]
-}
-
-export function synthesizeChildrenProfile(parentAge: number, countryCode: string, familyWeight = 2) {
-  if (parentAge < 23 || familyWeight === 0) { //[cite: 1]
-    return {
-      count: 0, //[cite: 1]
-      livingAtHome: 0, //[cite: 1]
-      children: [], //[cite: 1]
-      stageDescription: 'No dependent children (Single / Pre-parenting)', //[cite: 1]
-      note: 'Focus on early career development, higher education, and professional credentials.', //[cite: 1]
-    };
-  }
-
-  if (parentAge >= 23 && parentAge <= 26) { //[cite: 1]
-    const childAge = Math.max(1, parentAge - 24); //[cite: 1]
-    const stageInfo = getLifeStage(childAge); //[cite: 1]
-    return {
-      count: 1, //[cite: 1]
-      livingAtHome: 1, //[cite: 1]
-      children: [{ order: 1, age: childAge, birthYear: CURRENT_SURVEY_YEAR - childAge, stage: stageInfo.stage, dependent: true, color: stageInfo.color }], //[cite: 1]
-      stageDescription: 'Infant / Toddler Parenting', //[cite: 1]
-      note: 'First-time parent balancing nursery/preschool care and career consolidation.', //[cite: 1]
-    };
-  }
-
-  if (parentAge >= 27 && parentAge <= 44) { //[cite: 1]
-    let count = familyWeight > 2 ? 3 : 2; //[cite: 1]
-    if (countryCode === 'NG') count = familyWeight >= 3 ? 4 : 3; //[cite: 1]
-    if (familyWeight === 1) count = 1; //[cite: 1]
-
-    const firstChildAge = Math.min(parentAge - 21, Math.max(2, Math.round((parentAge - 24) * 0.75))); //[cite: 1]
-    const children: ChildProfile[] = [];
-
-    for (let i = 0; i < count; i++) { //[cite: 1]
-      const spacing = i === 0 ? 0 : i === 1 ? 3 : i === 2 ? 5 : 7; //[cite: 1]
-      const cAge = Math.max(1, firstChildAge - spacing); //[cite: 1]
-      const stageInfo = getLifeStage(cAge); //[cite: 1]
-      children.push({
-        order: i + 1, //[cite: 1]
-        age: cAge, //[cite: 1]
-        birthYear: CURRENT_SURVEY_YEAR - cAge, //[cite: 1]
-        stage: stageInfo.stage, //[cite: 1]
-        dependent: true, //[cite: 1]
-        color: stageInfo.color, //[cite: 1]
-      });
-    }
-
-    return {
-      count, //[cite: 1]
-      livingAtHome: count, //[cite: 1]
-      children, //[cite: 1]
-      stageDescription: count > 1 ? 'School-Age & Preschool Family' : 'Single Dependent Family', //[cite: 1]
-      note: `${count} dependent children residing at home; education, healthcare, and family vehicle priority.`, //[cite: 1]
-    };
-  }
-
-  // 45 - 54 Cohort
-  if (parentAge >= 45 && parentAge <= 54) { //[cite: 1]
-    const c1Age = parentAge - 24; //[cite: 1]
-    const c2Age = parentAge - 27; //[cite: 1]
-    const rawAges = [c1Age, c2Age]; //[cite: 1]
-    if (familyWeight >= 3 || countryCode === 'NG') rawAges.push(parentAge - 31); //[cite: 1]
-
-    const children = rawAges.map((ageVal, idx) => { //[cite: 1]
-      const stageInfo = getLifeStage(ageVal); //[cite: 1]
-      return {
-        order: idx + 1, //[cite: 1]
-        age: ageVal, //[cite: 1]
-        birthYear: CURRENT_SURVEY_YEAR - ageVal, //[cite: 1]
-        stage: stageInfo.stage, //[cite: 1]
-        dependent: ageVal <= 21, //[cite: 1]
-        color: stageInfo.color, //[cite: 1]
-      };
-    });
-
-    const dependentsLivingHome = children.filter((c) => c.dependent).length; //[cite: 1]
-    return {
-      count: children.length, //[cite: 1]
-      livingAtHome: dependentsLivingHome, //[cite: 1]
-      children, //[cite: 1]
-      stageDescription: 'Teenagers & Young Adults Transitioning', //[cite: 1]
-      note: `${dependentsLivingHome} dependent(s) still in school/college; older children gaining career independence.`, //[cite: 1]
-    };
-  }
-
-  // 55+ Senior
-  const adultChildren = [parentAge - 25, parentAge - 28].map((ageVal, idx) => ({ //[cite: 1]
-    order: idx + 1, //[cite: 1]
-    age: ageVal, //[cite: 1]
-    birthYear: CURRENT_SURVEY_YEAR - ageVal, //[cite: 1]
-    stage: 'Independent Adult', //[cite: 1]
-    dependent: false, //[cite: 1]
-    color: 'bg-slate-900 text-slate-300 border-slate-700', //[cite: 1]
-  }));
-
-  return {
-    count: adultChildren.length, //[cite: 1]
-    livingAtHome: 0, //[cite: 1]
-    children: adultChildren, //[cite: 1]
-    stageDescription: 'Empty-Nest / Grown Adult Children', //[cite: 1]
-    note: `All ${adultChildren.length} adult children live independently; grandchildren engagement stage.`, //[cite: 1]
-  };
-}
-
+// ==========================================
+// 3. MAIN DEMOGRAPHIC SYNTHESIS CALCULATION
+// ==========================================
 export function calculateDemographics(
   ip: string,
   age: number,
-  geoRaw: { city: string; country: string; code: string; isp: string; asn: string },
-  customMult = 1.0,
+  geo: { city: string; country: string; code: string; isp: string; asn: string },
+  customMult: number = 1.0,
   taxOverride: number | null = null,
-  familyWeight = 2,
-  evBoost = false
+  familyWeight: number = 2,
+  evBoost: boolean = false
 ): DemographicProfile {
-  const countryCode = (geoRaw.code || 'US').toUpperCase(); //[cite: 1]
-  const regionData = REGIONAL_KNOWLEDGE_BASE[countryCode] || REGIONAL_KNOWLEDGE_BASE['DEFAULT']; //[cite: 1]
+  let countryKey = (geo.code || 'NG').toUpperCase();
+  if (countryKey === 'GB') countryKey = 'UK';
+  if (!['NG', 'US', 'UK', 'AU'].includes(countryKey)) {
+    countryKey = 'NG';
+  }
 
-  const childProfile = synthesizeChildrenProfile(age, countryCode, familyWeight); //[cite: 1]
-  const hasYoungKids = childProfile.children.some((c) => c.dependent && c.age <= 12); //[cite: 1]
+  const regional = REGIONAL_DATA[countryKey] || REGIONAL_DATA.NG;
+  const realEstateListings = REAL_ESTATE_BY_REGION[countryKey] || REAL_ESTATE_BY_REGION.NG;
 
-  let ageTier = 'mid'; //[cite: 1]
-  let careerStage = 'Mid-Career Professional'; //[cite: 1]
-  let ageMult = 1.15; //[cite: 1]
+  let ageMult = 0.65;
+  let careerStage: 'early' | 'mid' | 'senior' = 'early';
 
-  if (age < 28) { //[cite: 1]
-    ageTier = 'junior'; //[cite: 1]
-    careerStage = 'Junior / Associate Specialist'; //[cite: 1]
-    ageMult = 0.7; //[cite: 1]
-  } else if (age <= 48) { //[cite: 1]
-    ageTier = 'mid'; //[cite: 1]
-    careerStage = 'Senior Specialist / Practice Lead'; //[cite: 1]
-    ageMult = 1.15; //[cite: 1]
+  if (age >= 25 && age < 32) {
+    ageMult = 0.95;
+    careerStage = 'early';
+  } else if (age >= 32 && age < 48) {
+    ageMult = 1.45;
+    careerStage = 'mid';
+  } else if (age >= 48 && age < 62) {
+    ageMult = 1.75;
+    careerStage = 'senior';
+  } else if (age >= 62) {
+    ageMult = 1.25;
+    careerStage = 'senior';
+  }
+
+  const grossIncome = Math.round(regional.baseSalary * ageMult * customMult);
+
+  let effectiveTaxRate = 0.18;
+  if (taxOverride !== null) {
+    effectiveTaxRate = taxOverride / 100;
   } else {
-    ageTier = 'senior'; //[cite: 1]
-    careerStage = 'Executive Director / Principal Authority'; //[cite: 1]
-    ageMult = 1.45; //[cite: 1]
+    if (grossIncome > regional.baseSalary * 1.5) effectiveTaxRate = 0.28;
+    else if (grossIncome > regional.baseSalary * 1.1) effectiveTaxRate = 0.22;
   }
 
-  const topOccupations = regionData.occupationsByAge[ageTier] || regionData.occupationsByAge['mid']; //[cite: 1]
+  const totalTax = Math.round(grossIncome * effectiveTaxRate);
+  const netIncome = grossIncome - totalTax;
 
-  const grossIncome = Math.round(regionData.baseIncomeGross * customMult * ageMult); //[cite: 1]
-  const effectiveTax = taxOverride !== null ? taxOverride / 100 : regionData.avgTaxRate; //[cite: 1]
-  const totalTax = Math.round(grossIncome * effectiveTax); //[cite: 1]
-  const netIncome = Math.max(0, grossIncome - totalTax); //[cite: 1]
-
-  const gradYear = CURRENT_SURVEY_YEAR - (age - 22); //[cite: 1]
-  let degreeTitle = 'Bachelor of Science (B.Sc.) Honors'; //[cite: 1]
-  let fieldOfStudy = 'Public Policy, Computer Science & Business Management'; //[cite: 1]
-  const institution = 'Accredited State & National Flagship University'; //[cite: 1]
-  let badge = "Bachelor's Level"; //[cite: 1]
-  let gradDisplay = `${gradYear} (Age 22)`; //[cite: 1]
-  let cohortShare = 'Top 18% in Regional Workforce'; //[cite: 1]
-  let cohortPercent = 82; //[cite: 1]
-  let description = 'Accredited degree completion with standard board certifications.'; //[cite: 1]
-
-  if (age < 22) { //[cite: 1]
-    degreeTitle = 'Undergraduate Candidate'; //[cite: 1]
-    badge = 'Student / Candidate'; //[cite: 1]
-    gradDisplay = `Expected ${CURRENT_SURVEY_YEAR + (22 - age)}`; //[cite: 1]
-    cohortShare = 'Junior Academic Intake'; //[cite: 1]
-    cohortPercent = 45; //[cite: 1]
-    description = 'Currently completing accredited academic prerequisites.'; //[cite: 1]
-  } else if (age >= 35 && age <= 48) { //[cite: 1]
-    degreeTitle = 'Master of Science (M.Sc.) / Professional Charter (ACCA/Chartered)'; //[cite: 1]
-    badge = 'Master / Chartered Specialist'; //[cite: 1]
-    gradDisplay = `${gradYear} (Undergrad) • ${gradYear + 4} (Master's)`; //[cite: 1]
-    cohortShare = 'Top 12% in Industry'; //[cite: 1]
-    cohortPercent = 88; //[cite: 1]
-    description = 'Holds advanced postgraduate charter with accredited professional licensing.'; //[cite: 1]
-  } else if (age > 48) { //[cite: 1]
-    degreeTitle = 'Fellow of the Professional Institute / Executive Fellow (FCA/CEng/Ph.D.)'; //[cite: 1]
-    badge = 'Executive Fellow'; //[cite: 1]
-    gradDisplay = `${gradYear} (Age 22)`; //[cite: 1]
-    cohortShare = 'Top 6% Lifetime Leadership'; //[cite: 1]
-    cohortPercent = 94; //[cite: 1]
-    description = 'Recognized industry fellow with corporate board and governance accreditations.'; //[cite: 1]
+  let degreeTitle = "Bachelor's Degree (Honors)";
+  let fieldOfStudy = 'Applied Engineering & Computer Systems';
+  let badge = 'Level 6 Attainment';
+  let gradAge = 22;
+  if (age < 23) {
+    degreeTitle = 'Undergraduate Candidate';
+    fieldOfStudy = 'Computer Science & Systems';
+    badge = 'In-Progress';
+    gradAge = age;
+  } else if (age >= 38) {
+    degreeTitle = "Master's Degree / Professional Charter";
+    fieldOfStudy = 'Enterprise Systems & Strategic Management';
+    badge = 'Post-Graduate';
+    gradAge = 24;
   }
 
-  let maritalStatus = regionData.maritalStatus; //[cite: 1]
-  let homeOwnership = regionData.homeOwnership; //[cite: 1]
-  let householdArchetype = 'Dual-Income Family'; //[cite: 1]
+  const children: ChildProfile[] = [];
+  let childCount = 0;
+  let stageDescription = 'Single Professional';
+  let maritalStatus = 'Single / Unmarried';
+  let householdSizeNum = 1;
+  let householdArchetype = 'Independent Urban Residence';
+  let homeOwnership = 'Private Tenant (Rental)';
 
-  if (age < 25) { //[cite: 1]
-    maritalStatus = '82% Single / 18% Partnered'; //[cite: 1]
-    homeOwnership = '85% Rented Flat / Shared Living'; //[cite: 1]
-    householdArchetype = 'Young Solo Professional'; //[cite: 1]
-  } else if (age <= 49) { //[cite: 1]
-    maritalStatus = '74% Married or Cohabiting'; //[cite: 1]
-    homeOwnership = '76% Homeowner (Mortgaged)'; //[cite: 1]
-    householdArchetype = childProfile.count > 0 ? 'Core Family with Dependents' : 'Dual-Income No Kids (DINK)'; //[cite: 1]
-  } else {
-    maritalStatus = '68% Married / 32% Independent or Widowed'; //[cite: 1]
-    homeOwnership = '88% Homeowner (Substantial Equity)'; //[cite: 1]
-    householdArchetype = 'Mature Household / Empty-Nest'; //[cite: 1]
+  if (age >= 28 && age <= 35) {
+    childCount = Math.min(2, familyWeight);
+    maritalStatus = 'Married / Cohabiting';
+    stageDescription = 'Young Family (Infants / Toddlers)';
+    homeOwnership = 'First-Time Homeowner (Mortgaged)';
+    householdSizeNum = 2 + childCount;
+    householdArchetype = 'Young Nuclear Family Residence';
+    if (childCount >= 1) {
+      const cAge = Math.max(1, age - 27);
+      children.push({
+        order: 1,
+        age: cAge,
+        birthYear: 2026 - cAge,
+        stage: 'Toddler',
+        dependent: true,
+        color: 'emerald',
+      });
+    }
+    if (childCount >= 2) {
+      const cAge = Math.max(1, age - 30);
+      children.push({
+        order: 2,
+        age: cAge,
+        birthYear: 2026 - cAge,
+        stage: 'Infant',
+        dependent: true,
+        color: 'teal',
+      });
+    }
+  } else if (age > 35 && age <= 50) {
+    childCount = Math.min(3, familyWeight);
+    maritalStatus = 'Married / Dual-Income';
+    stageDescription = 'Established Family (School-Age & Teens)';
+    homeOwnership = 'Suburban Homeowner';
+    householdSizeNum = 2 + childCount;
+    householdArchetype = 'Multi-Bedroom Family Estate';
+    if (childCount >= 1) {
+      const cAge = age - 26;
+      children.push({
+        order: 1,
+        age: cAge,
+        birthYear: 2026 - cAge,
+        stage: 'Adolescent / Teen',
+        dependent: true,
+        color: 'emerald',
+      });
+    }
+    if (childCount >= 2) {
+      const cAge = age - 29;
+      children.push({
+        order: 2,
+        age: cAge,
+        birthYear: 2026 - cAge,
+        stage: 'Middle School',
+        dependent: true,
+        color: 'teal',
+      });
+    }
+    if (childCount >= 3) {
+      const cAge = age - 33;
+      children.push({
+        order: 3,
+        age: cAge,
+        birthYear: 2026 - cAge,
+        stage: 'Primary School',
+        dependent: true,
+        color: 'amber',
+      });
+    }
+  } else if (age > 50 && age <= 65) {
+    childCount = Math.min(2, familyWeight);
+    maritalStatus = 'Married / Dual-Income';
+    stageDescription = 'Mature Family (University Students / Young Adults)';
+    homeOwnership = 'Full Homeowner (Equity Owned)';
+    householdSizeNum = 2 + (childCount > 1 ? 1 : 0);
+    householdArchetype = 'Mature Primary Residence';
+    if (childCount >= 1) {
+      const cAge = age - 26;
+      children.push({
+        order: 1,
+        age: cAge,
+        birthYear: 2026 - cAge,
+        stage: 'University Graduate',
+        dependent: false,
+        color: 'slate',
+      });
+    }
+    if (childCount >= 2) {
+      const cAge = age - 29;
+      children.push({
+        order: 2,
+        age: cAge,
+        birthYear: 2026 - cAge,
+        stage: 'Undergraduate',
+        dependent: true,
+        color: 'emerald',
+      });
+    }
+  } else if (age > 65) {
+    childCount = 0;
+    maritalStatus = 'Retiree / Couple';
+    stageDescription = 'Empty Nester / Senior Citizen';
+    homeOwnership = 'Mortgage-Free Property';
+    householdSizeNum = 2;
+    householdArchetype = 'Retirement Residence';
   }
 
-  const totalOccupants = (childProfile.livingAtHome + (maritalStatus.includes('Married') ? 2 : 1)).toFixed(1); //[cite: 1]
+  let carCategory = 'Compact Crossover & Urban Saloon';
+  let carModels = 'Toyota Corolla / RAV4 / Honda CR-V';
+  let commuteTime = '32 - 45 mins';
+  let evRate = evBoost ? 'High EV Bias Active (Tesla / BYD / Ioniq)' : '18% Hybrid / 8% Battery EV';
 
-  const carData = {
-    category: countryCode === 'NG' ? 'All-Terrain Compact SUV & Saloon' : 'Family Compact SUV / Crossover', //[cite: 1]
-    models: countryCode === 'NG' ? 'Toyota Camry, Corolla, Highlander, Lexus RX350' : 'Toyota RAV4, Honda CR-V, Tesla Model Y', //[cite: 1]
-    evRate: evBoost ? 'High EV Density (45% EV/PHEV)' : countryCode === 'NG' ? 'Fuel-Efficient Petrol & Hybrid: 14%' : 'EV/Hybrid share: 22%', //[cite: 1]
-    commute: countryCode === 'NG' ? 'Expressway & Federal Highway Commute' : 'Personal Vehicle Commute', //[cite: 1]
-    commuteTime: countryCode === 'NG' ? '38 mins' : '24 mins', //[cite: 1]
-    hasCar: true, //[cite: 1]
-  };
+  if (age >= 38 && grossIncome > regional.baseSalary * 1.3) {
+    carCategory = 'Executive SUV & Saloon Ensemble';
+    carModels = 'Lexus RX / Mercedes GLC / BMW 3-Series';
+    commuteTime = '25 - 38 mins';
+    evRate = evBoost ? 'High EV Bias Active (Porsche Taycan / Model X)' : '32% Plug-in Hybrid / EV';
+  }
 
-  const sports = age >= 50 //[cite: 1]
-    ? ['Golf', 'Active Walking', 'Swimming', 'Lawn Tennis'] //[cite: 1]
-    : ['Football (Soccer)', 'Road Running / Jogging', 'Gym & Fitness Lifting', 'Tennis / Padel']; //[cite: 1]
-  const fitnessRate = age >= 50 ? 'Daily Walking & Weekend Golf' : '3-4 Days / Week Active'; //[cite: 1]
-
-  const rawMedia = regionData.mediaProfile || REGIONAL_KNOWLEDGE_BASE['DEFAULT'].mediaProfile; //[cite: 1]
-  const videoApps = hasYoungKids //[cite: 1]
-    ? [rawMedia.baseSvod[0], rawMedia.kidsSvod[0], rawMedia.baseSvod[1] || 'Prime Video'] //[cite: 1]
-    : [rawMedia.baseSvod[0], rawMedia.baseSvod[1] || 'Prime Video', 'YouTube Premium']; //[cite: 1]
+  const archetypeLabel = `${age >= 38 ? 'Senior' : 'Mid-Career'} ${regional.majorIndustries[0].name.split(' ')[0]} Specialist`;
+  const narrative = `${archetypeLabel}: A ${age}-year-old resident in ${geo.city}, ${geo.country} working in ${regional.majorIndustries[0].name}, earning an estimated ${regional.currencySymbol}${grossIncome.toLocaleString()} gross annually.`;
 
   return {
+    age,
+    careerStage,
+    archetypeLabel,
+    narrative,
+    currencySymbol: regional.currencySymbol,
+    currencyCode: regional.currencyCode,
+    grossIncome,
+    netIncome,
+    totalTax,
+    effectiveTaxRatePercentage: Math.round(effectiveTaxRate * 100),
+    majorIndustries: regional.majorIndustries,
+    topOccupations: regional.occupationsByStage[careerStage],
+    realEstateListings,
+    education: {
+      degreeTitle,
+      fieldOfStudy,
+      institution: `Premier Regional University (${geo.city})`,
+      gradDisplay: `Graduated Age ${gradAge}`,
+      badge,
+      description: `Formal accredited degree credential aligned with regional ${careerStage} demographic percentiles.`,
+      cohortShare: 'Top 18% of geographic peer group',
+      cohortPercent: 18,
+    },
+    childProfile: {
+      count: childCount,
+      livingAtHome: children.filter((c) => c.dependent).length,
+      stageDescription,
+      children,
+      note: childCount > 0 ? `${childCount} dependent minors in educational cycle.` : 'No dependent minor dependents detected.',
+    },
+    householdSize: String(householdSizeNum),
+    householdArchetype,
+    maritalStatus,
+    homeOwnership,
+    cars: {
+      category: carCategory,
+      models: carModels,
+      commute: 'Metropolitan Expressway Corridor',
+      commuteTime,
+      evRate,
+      hasCar: true,
+    },
+    sports: regional.sports,
+    spectatorSport: regional.spectatorSport,
+    fitnessRate: '2 - 3 Sessions / Week (Outdoor & Gym)',
+    store: regional.store,
+    storeType: regional.storeType,
+    bank: regional.bank,
+    bankType: regional.bankType,
+    insurance: {
+      health: 'Private Comprehensive Corporate HMO',
+      profLiability: 'Institutional Errors & Omissions',
+      autoProperty: 'Comprehensive Underwritten Multi-Asset Policy',
+    },
+    entertainment: regional.entertainment,
+    detectedIsp: geo.isp || 'Regional Backbone Provider',
+    detectedAsn: geo.asn || 'AS00000',
+    ispProfile: regional.ispInfrastructure,
     geo: {
       ip,
-      city: geoRaw.city,
-      region: geoRaw.city,
-      country_name: geoRaw.country,
-      country_code: countryCode,
+      city: geo.city,
+      region: geo.city,
+      country_name: geo.country,
+      country_code: countryKey,
       timezone: 'UTC',
-      asn: geoRaw.asn,
+      asn: geo.asn || 'AS00000',
       latitude: 0,
       longitude: 0,
-    },
-    age,
-    archetypeLabel: `${geoRaw.city} • ${geoRaw.country} • Age ${age}`, //[cite: 1]
-    narrative: `In ${geoRaw.city} (${geoRaw.country}), the economy is anchored by ${regionData.majorIndustries[0].name}. A typical ${age}-year-old resident holds the role of ${topOccupations[0].title}.`, //[cite: 1]
-    detectedIsp: geoRaw.isp, //[cite: 1]
-    detectedAsn: geoRaw.asn, //[cite: 1]
-    currencySymbol: regionData.currencySymbol, //[cite: 1]
-    currencyCode: regionData.currency, //[cite: 1]
-    grossIncome, //[cite: 1]
-    netIncome, //[cite: 1]
-    totalTax, //[cite: 1]
-    effectiveTaxRatePercentage: Math.round(effectiveTax * 100), //[cite: 1]
-    careerStage, //[cite: 1]
-    majorIndustries: regionData.majorIndustries, //[cite: 1]
-    topOccupations, //[cite: 1]
-    education: {
-      degreeTitle, //[cite: 1]
-      badge, //[cite: 1]
-      fieldOfStudy, //[cite: 1]
-      institution, //[cite: 1]
-      gradDisplay, //[cite: 1]
-      cohortShare, //[cite: 1]
-      cohortPercent, //[cite: 1]
-      description, //[cite: 1]
-    },
-    childProfile, //[cite: 1]
-    householdSize: totalOccupants, //[cite: 1]
-    maritalStatus, //[cite: 1]
-    homeOwnership, //[cite: 1]
-    householdArchetype, //[cite: 1]
-    cars: carData, //[cite: 1]
-    sports, //[cite: 1]
-    spectatorSport: regionData.spectatorSport, //[cite: 1]
-    fitnessRate, //[cite: 1]
-    store: regionData.store, //[cite: 1]
-    storeType: regionData.storeType, //[cite: 1]
-    bank: regionData.bank, //[cite: 1]
-    bankType: regionData.bankType, //[cite: 1]
-    insurance: {
-      health: age < 26 ? 'Individual Health / Basic Coverage' : 'Comprehensive Family Health & Pediatric Dental/Vision', //[cite: 1]
-      profLiability: 'Professional Indemnity & Errors and Omissions (E&O) Policy', //[cite: 1]
-      autoProperty: 'Comprehensive Collision, Fire & Third-Party Property Damage', //[cite: 1]
-    },
-    ispProfile: regionData.ispProfile, //[cite: 1]
-    entertainment: {
-      dietTag: 'Digital-First Streaming & Broadcast', //[cite: 1]
-      subCount: '3.2 Subs', //[cite: 1]
-      videoApps, //[cite: 1]
-      audioApps: rawMedia.baseAudio, //[cite: 1]
-      tvStations: rawMedia.tvStations, //[cite: 1]
-      radioStations: rawMedia.radioStations, //[cite: 1]
     },
   };
 }
 
+// ==========================================
+// 4. FIVE-CHECK PLAUSIBILITY AUDIT ENGINE
+// ==========================================
 export function evaluatePlausibility(profile: DemographicProfile): PlausibilityResult {
-  const audits = {
-    bioSpacing: { pass: true, label: 'Pass', text: 'Parent-child age delta >= 18 years.' }, //[cite: 1]
-    academicTimeline: { pass: true, label: 'Pass', text: 'Credential timeline verified.' }, //[cite: 1]
-    econConcordance: { pass: true, label: 'Pass', text: 'Compensation fits regional role.' }, //[cite: 1]
-    householdAlign: { pass: true, label: 'Pass', text: 'Household fits dependent structure.' }, //[cite: 1]
-    policyAsset: { pass: true, label: 'Pass', text: 'Risk policies match physical assets.' }, //[cite: 1]
+  let score = 100;
+
+  // 1. Biological Spacing Check (bioSpacing)
+  let bioSpacingPass = true;
+  let bioSpacingLabel = 'Coherent';
+  let bioSpacingText = 'Biological dependents and maternal pacing adhere to census standards.';
+  if (profile.age < 23 && profile.childProfile.count > 1) {
+    score -= 15;
+    bioSpacingPass = false;
+    bioSpacingLabel = 'Atypical Pacing';
+    bioSpacingText = 'Accelerated parity relative to age cohort baseline.';
+  }
+
+  // 2. Academic Timeline Check (academicTimeline)
+  let academicPass = true;
+  let academicLabel = 'Standard Progression';
+  let academicText = 'Tertiary credential milestones align with regional median attainment.';
+  if (profile.age < 22 && profile.education.badge === 'Post-Graduate') {
+    score -= 25;
+    academicPass = false;
+    academicLabel = 'Timeline Discrepancy';
+    academicText = 'Advanced post-graduate credential mathematically anomalous for age < 22.';
+  }
+
+  // 3. Economic Concordance (econConcordance)
+  let econPass = true;
+  let econLabel = 'Plausible';
+  let econText = 'Income distribution curve matches regional macroeconomic brackets.';
+  if (profile.age < 23 && profile.grossIncome > 20000000) {
+    score -= 20;
+    econPass = false;
+    econLabel = 'High Outlier';
+    econText = 'Gross income deviates > 2.5σ from early-career median.';
+  }
+
+  // 4. Household Alignment (householdAlign)
+  const householdPass = true;
+  const householdLabel = 'Coherent';
+  const householdText = `Household structure (${profile.householdArchetype}) reflects regional living patterns.`;
+
+  // 5. Policy & Asset Concordance (policyAsset)
+  const policyAssetPass = true;
+  const policyAssetLabel = 'Market-Aligned';
+  const policyAssetText = `Housing and asset profiles correspond to ${profile.currencyCode} purchasing parity benchmarks.`;
+
+  const status = score >= 90 ? 'Coherent' : score >= 75 ? 'Plausible with Variance' : 'Statistically Anomalous';
+  const mahalanobisDistance = (1.05 + (100 - score) * 0.035).toFixed(2);
+
+  return {
+    score,
+    status,
+    mahalanobisDistance,
+    audits: {
+      bioSpacing: { pass: bioSpacingPass, label: bioSpacingLabel, text: bioSpacingText },
+      academicTimeline: { pass: academicPass, label: academicLabel, text: academicText },
+      econConcordance: { pass: econPass, label: econLabel, text: econText },
+      householdAlign: { pass: householdPass, label: householdLabel, text: householdText },
+      policyAsset: { pass: policyAssetPass, label: policyAssetLabel, text: policyAssetText },
+    },
   };
-
-  let penalties = 0; //[cite: 1]
-
-  if (profile.childProfile.children.length > 0) { //[cite: 1]
-    const oldestAge = Math.max(...profile.childProfile.children.map((c) => c.age)); //[cite: 1]
-    const delta = profile.age - oldestAge; //[cite: 1]
-    if (delta < 15) { //[cite: 1]
-      audits.bioSpacing = { pass: false, label: 'Fatal Error', text: `Child age ${oldestAge} vs parent age ${profile.age} (delta < 15 yrs).` }; //[cite: 1]
-      penalties += 45; //[cite: 1]
-    } else if (delta < 18) { //[cite: 1]
-      audits.bioSpacing = { pass: false, label: 'Atypical', text: `Child born when parent was age ${delta}.` }; //[cite: 1]
-      penalties += 20; //[cite: 1]
-    }
-  }
-
-  const deg = profile.education.degreeTitle.toLowerCase(); //[cite: 1]
-  if (profile.age < 23 && (deg.includes('doctor') || deg.includes('m.d.') || deg.includes('fellow') || deg.includes('master'))) { //[cite: 1]
-    audits.academicTimeline = { pass: false, label: 'Invalid Timeline', text: `${profile.education.degreeTitle} impossible before age 24.` }; //[cite: 1]
-    penalties += 40; //[cite: 1]
-  }
-
-  const score = Math.max(12, 98 - penalties); //[cite: 1]
-  let status = 'Statistically Coherent'; //[cite: 1]
-  const mahalanobisDistance = (1.12 + penalties * 0.12).toFixed(2); //[cite: 1]
-
-  if (score < 50) status = 'High Anomaly / Fraud Flagged'; //[cite: 1]
-  else if (score < 80) status = 'Low Probability / Atypical'; //[cite: 1]
-
-  return { score, status, mahalanobisDistance, audits }; //[cite: 1]
 }

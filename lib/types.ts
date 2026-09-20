@@ -139,3 +139,20 @@ export interface PlausibilityResult {
     policyAsset: PlausibilityAuditItem;
   };
 }
+
+export interface RealEstateListing {
+  platform: string; // e.g. "PropertyPro.ng", "Zillow", "Rightmove"
+  title: string;
+  location: string;
+  price: string;
+  size: string; // e.g. "450 sqm living area (800 sqm plot)" or "2,150 sq ft"
+  specs: string; // e.g. "4 Beds • 5 Baths • BQ"
+  url: string;
+  badge?: string;
+}
+
+// Add realEstateListings to DemographicProfile interface:
+export interface DemographicProfile {
+  // ... existing fields ...
+  realEstateListings: RealEstateListing[];
+}

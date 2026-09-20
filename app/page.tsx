@@ -388,9 +388,8 @@ export default function HomePage() {
               {audit.score}% • {audit.status}
             </span>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-            {Object.entries(audit.audits).map(([key, item]) => (
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+            {Object.entries(audit.audits).map(([key, item]: [string, any]) => (
               <div
                 key={key}
                 className={`p-3 bg-white rounded-xl border shadow-sm ${
@@ -741,6 +740,76 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* 3 Real Resident Houses For Sale Section */}
+<section className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
+  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200 pb-3">
+    <div>
+      <h2 className="text-xs font-mono uppercase text-emerald-700 tracking-wider font-bold">
+        Representative Residential Real Estate for Sale ({profile.geo.city}, {profile.geo.country_name})
+      </h2>
+      <p className="text-xs text-slate-500">
+        Active benchmarks mapped from leading regional rental & property marketplace platforms
+      </p>
+    </div>
+    <span className="text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">
+      3 Active Benchmark Listings
+    </span>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {profile.realEstateListings.map((prop, idx) => (
+      <div
+        key={idx}
+        className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-emerald-300 transition shadow-sm space-y-3"
+      >
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-mono font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
+              via {prop.platform}
+            </span>
+            {prop.badge && (
+              <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-semibold">
+                {prop.badge}
+              </span>
+            )}
+          </div>
+          <h3 className="text-sm font-bold text-slate-900 leading-snug">
+            {prop.title}
+          </h3>
+          <p className="text-xs text-slate-500 font-mono">
+            📍 {prop.location}
+          </p>
+        </div>
+
+        <div className="pt-2 border-t border-slate-100 space-y-1.5">
+          <div className="flex justify-between items-baseline">
+            <span className="text-xs text-slate-500">Listing Cost:</span>
+            <span className="text-base font-black font-mono text-emerald-700">
+              {prop.price}
+            </span>
+          </div>
+          <div className="flex justify-between text-xs text-slate-600">
+            <span className="text-slate-500">Floor/Lot Size:</span>
+            <span className="font-semibold text-slate-800">{prop.size}</span>
+          </div>
+          <div className="text-[11px] text-slate-600 font-mono bg-slate-50 p-2 rounded-lg border border-slate-200">
+            {prop.specs}
+          </div>
+
+          <a
+            href={prop.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 block text-center w-full py-1.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition font-mono"
+          >
+            View on {prop.platform} →
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+  </section>
 
       {/* Calibration Controls Drawer */}
       <section className="bg-slate-50 border border-slate-200 p-6 rounded-2xl space-y-4 shadow-sm">
